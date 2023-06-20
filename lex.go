@@ -69,6 +69,10 @@ func (l *Lexer) Lex() (Position, Token, string) {
 			return l.pos, BLOCKSTART, string(r)
 		case '}':
 			return l.pos, BLOCKEND, string(r)
+		case '"':
+			startPos := l.pos
+			lit := l.lexString()
+			return startPos, STRINGLITERAL, lit
 		default:
 			if unicode.IsSpace(r) {
 				continue
@@ -88,11 +92,6 @@ func (l *Lexer) Lex() (Position, Token, string) {
 					}
 				}
 				return startPos, IDENT, lit
-			} else if r == '"' {
-				startPos := l.pos
-				l.backup()
-				lit := l.lexString()
-				return startPos, STRINGLITERAL, lit
 			} else {
 				return l.pos, ILLEGAL, string(r)
 			}
@@ -153,7 +152,6 @@ func (l *Lexer) lexIdent() string {
 	}
 }
 
-// not working! fix!
 func (l *Lexer) lexString() string {
 	var lit string
 	for {
@@ -168,7 +166,6 @@ func (l *Lexer) lexString() string {
 		if r == '"' {
 			return lit
 		} else {
-			l.backup()
 			lit = lit + string(r)
 		}
 	}

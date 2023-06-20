@@ -30,8 +30,8 @@ const (
 var tokens = []string{
 	EOF:           "EOF",
 	ILLEGAL:       "ILLEGAL",
-	IDENT:         "IDENT",     // TODO
-	KEYWORD:       "KEYWORD",   // TODO
+	IDENT:         "IDENT",
+	KEYWORD:       "KEYWORD",
 	TYPEANNOT:     "TYPEANNOT", // TODO
 	IMPORT:        "IMPORT",    // TODO
 	ASSIGN:        "ASSIGN",
@@ -46,7 +46,7 @@ var tokens = []string{
 	RSQRBRAC:      "RSQRBRAC",
 	BLOCKSTART:    "BLOCKSTART",
 	BLOCKEND:      "BLOCKEND",
-	STRINGLITERAL: "STRINGLITERAL", // TODO
+	STRINGLITERAL: "STRINGLITERAL",
 	INTLITERAL:    "INTLITERAL",
 	DOT:           "DOT",
 	NEWLINE:       "NEWLINE",
