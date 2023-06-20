@@ -81,6 +81,12 @@ func (l *Lexer) Lex() (Position, Token, string) {
 				startPos := l.pos
 				l.backup()
 				lit := l.lexIdent()
+				// need to check if it's a keyword
+				for _, keyword := range keywords {
+					if keyword == lit {
+						return startPos, KEYWORD, lit
+					}
+				}
 				return startPos, IDENT, lit
 			} else if r == '"' {
 				startPos := l.pos
