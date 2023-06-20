@@ -1,0 +1,9 @@
+@import hello
+@import goodbye as g
+
+edef main() {
+  string name = "Tantawat"
+  name = "Kelvin"
+  hello.Hello(name)
+  g.Goodbye(name)
+}

@@ -1,0 +1,13 @@
+def Goodbye(string s) {
+  Printf("Goodbye %s", s)
+}
+
+// init() gets called on import of file, every time
+edef init() {
+  Print("Initializing...")
+}
+
+// initOnce() gets called once when it is first imported
+edef initOnce() {
+  Print("Listen carefully, I only say this once.")
+}
