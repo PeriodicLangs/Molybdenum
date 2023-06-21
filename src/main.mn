@@ -4,7 +4,7 @@
 edef main() {
     string name = "Joe"
     name = "John"
-    int number = 10 * 0.5 - 1
+    int number = 10 * 5 - 1
     hello.Hello(name)
     g.Goodbye("Joe Bloggs")
 }
