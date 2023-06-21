@@ -2,18 +2,29 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	"os"
 )
 
 func main() {
-	reader := strings.NewReader("edef main() {\n" +
-		"Print(\"Hello World\")\n" +
-		"}")
-	lexer := NewLexer(reader)
-	pos, tok, val := lexer.Lex()
-	for tok != EOF {
-		fmt.Println(pos, tok, val)
-		pos, tok, val = lexer.Lex()
+	// reader := strings.NewReader("edef main() {\n" +
+	// 	"Print(\"Hello World\")\n" +
+	// 	"}")
+
+	reader, err := os.Open("main.mn")
+	if err != nil {
+		panic(err)
 	}
-	fmt.Println(pos, tok, val)
+	lexer := NewLexer(reader)
+	var tokens []*LexedTok
+	pos, tok, val := lexer.Lex()
+	tokens = append(tokens, NewLexedTok(pos, tok, val))
+	for tok != EOF {
+		// fmt.Println(pos, tok, val)
+		pos, tok, val = lexer.Lex()
+		tokens = append(tokens, NewLexedTok(pos, tok, val))
+	}
+	// fmt.Println(pos, tok, val)
+	for _, lt := range tokens {
+		fmt.Println(lt.pos, lt.tok, lt.val)
+	}
 }

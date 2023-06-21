@@ -32,23 +32,23 @@ var tokens = []string{
 	ILLEGAL:       "ILLEGAL",
 	IDENT:         "IDENT",
 	KEYWORD:       "KEYWORD",
-	TYPEANNOT:     "TYPEANNOT", // TODO
-	IMPORT:        "IMPORT",    // TODO
-	ASSIGN:        "ASSIGN",
-	ADD:           "ADD",
-	MUL:           "MUL",
-	SUB:           "SUB",
-	DIV:           "DIV",
-	MOD:           "MOD",
-	LPAREN:        "LPAREN",
-	RPAREN:        "RPAREN",
-	LSQRBRAC:      "LSQRBRAC",
-	RSQRBRAC:      "RSQRBRAC",
-	BLOCKSTART:    "BLOCKSTART",
-	BLOCKEND:      "BLOCKEND",
+	TYPEANNOT:     "TYPEANNOT",
+	IMPORT:        "IMPORT",
+	ASSIGN:        "=",
+	ADD:           "+",
+	MUL:           "*",
+	SUB:           "-",
+	DIV:           "/",
+	MOD:           "%",
+	LPAREN:        "(",
+	RPAREN:        ")",
+	LSQRBRAC:      "[",
+	RSQRBRAC:      "]",
+	BLOCKSTART:    "{",
+	BLOCKEND:      "}",
 	STRINGLITERAL: "STRINGLITERAL",
 	INTLITERAL:    "INTLITERAL",
-	DOT:           "DOT",
+	DOT:           ".",
 	NEWLINE:       "NEWLINE",
 }
 
@@ -67,6 +67,28 @@ var keywords = []string{
 	"as",
 }
 
+var types = []string{
+	"string",
+	"int",
+	"float",
+	"double",
+	"bool",
+}
+
 func (t Token) String() string {
 	return tokens[t]
+}
+
+type LexedTok struct {
+	pos Position
+	tok Token
+	val string
+}
+
+func NewLexedTok(pos Position, tok Token, val string) *LexedTok {
+	return &LexedTok{
+		pos: pos,
+		tok: tok,
+		val: val,
+	}
 }
