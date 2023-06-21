@@ -69,6 +69,15 @@ func (l *Lexer) Lex() (Position, Token, string) {
 			return l.pos, BLOCKSTART, string(r)
 		case '}':
 			return l.pos, BLOCKEND, string(r)
+		case '@':
+			startPos := l.pos
+			l.backup()
+			lit := l.lexCompilerInstruction()
+			if lit == "@import" {
+				return startPos, IMPORT, lit
+			} else {
+				return startPos, ILLEGAL, lit
+			}
 		case '"':
 			startPos := l.pos
 			lit := l.lexString()
@@ -91,11 +100,18 @@ func (l *Lexer) Lex() (Position, Token, string) {
 						return startPos, KEYWORD, lit
 					}
 				}
+				// need to check if it's a type annotation
+				for _, tannot := range types {
+					if tannot == lit {
+						return startPos, TYPEANNOT, lit
+					}
+				}
 				return startPos, IDENT, lit
 			} else {
 				return l.pos, ILLEGAL, string(r)
 			}
 		}
+		return l.pos, ILLEGAL, string(r)
 	}
 }
 
@@ -167,6 +183,25 @@ func (l *Lexer) lexString() string {
 			return lit
 		} else {
 			lit = lit + string(r)
+		}
+	}
+}
+
+func (l *Lexer) lexCompilerInstruction() string {
+	var lit string
+	for {
+		r, _, err := l.reader.ReadRune()
+		if err != nil {
+			if err == io.EOF {
+				return lit
+			}
+		}
+
+		l.pos.col++
+		if r != ' ' {
+			lit = lit + string(r)
+		} else {
+			return lit
 		}
 	}
 }
