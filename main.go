@@ -10,7 +10,7 @@ func main() {
 	// 	"Print(\"Hello World\")\n" +
 	// 	"}")
 
-	reader, err := os.Open("main.mn")
+	reader, err := os.Open("src/main.mn")
 	if err != nil {
 		panic(err)
 	}
