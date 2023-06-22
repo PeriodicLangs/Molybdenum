@@ -5,7 +5,7 @@ import (
 )
 
 func Parse(tokens []*LexedTok) (*AST, error) {
-	// implement tok reader
+	// look at how https://github.com/shafinsiddique/page/blob/master/page/rdParser.go is structured
 	var ast AST
 	for _, lt := range tokens {
 		node, e := parseNode(lt)
