@@ -33,7 +33,7 @@ var tokens = []string{
 	IDENT:         "IDENT",
 	KEYWORD:       "KEYWORD",
 	TYPEANNOT:     "TYPEANNOT",
-	IMPORT:        "IMPORT",
+	IMPORT:        "IMPORT", // right now import just exists, has no functionality yet
 	ASSIGN:        "=",
 	ADD:           "+",
 	MUL:           "*",
@@ -91,4 +91,10 @@ func NewLexedTok(pos Position, tok Token, val string) *LexedTok {
 		tok: tok,
 		val: val,
 	}
+}
+
+var validEntryPointNames = []string{
+	"main",
+	// "init", ADD LATER!!!
+	// "initOnce", ADD LATER!!!
 }

@@ -1,0 +1,6 @@
+edef main() {
+    string name = "Joe"
+    name = "John"
+    int number = 2 * 5 - 1
+    Print("Hello World!")
+}
