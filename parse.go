@@ -36,7 +36,7 @@ func parseNode(lt *LexedTok) (Node, error) {
 	case BLOCKSTART:
 		return parseBlock()
 	}
-	return nil, fmt.Errorf("Unexpected token: %v", lt.tok)
+	return nil, fmt.Errorf("unexpected token: %v", lt.tok)
 }
 
 func parseKeyword() (*KeywordNode, error) {
