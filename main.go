@@ -25,8 +25,12 @@ func main() {
 	}
 	// fmt.Println(pos, tok, val)
 	for _, lt := range tokens {
-		fmt.Println(lt.pos, lt.tok, lt.val)
+		fmt.Println(lt.Pos, lt.Tok, lt.Val)
 	}
 	// tokens := []*LexedTok{NewLexedTok(Position{1, 1}, IDENT, "main"), NewLexedTok(Position{2, 1}, BLOCKSTART, "{"), NewLexedTok(Position{3, 1}, TYPEANNOT, "string"), NewLexedTok(Position{3, 6}, IDENT, "s"), NewLexedTok(Position{3, 8}, ASSIGN, "="), NewLexedTok(Position{3, 10}, STRINGLITERAL, "Hello World!"), NewLexedTok(Position{4, 1}, BLOCKEND, "}"), NewLexedTok(Position{5, 1}, EOF, "")}
-	// _ = Parse(tokens)
+	ast, err := Parse(tokens)
+	if err != nil {
+		panic("ERROR: " + err.Error())
+	}
+	fmt.Println(ast)
 }

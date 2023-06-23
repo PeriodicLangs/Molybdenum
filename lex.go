@@ -29,7 +29,7 @@ func (l *Lexer) Lex() (Position, Token, string) {
 		r, _, err := l.reader.ReadRune()
 		if err != nil {
 			if err == io.EOF {
-				return l.pos, EOF, ""
+				return l.pos, EOF, "EOF"
 			}
 
 			// at this point there isn't much we can do, and the compiler

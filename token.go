@@ -34,21 +34,21 @@ var tokens = []string{
 	KEYWORD:       "KEYWORD",
 	TYPEANNOT:     "TYPEANNOT",
 	IMPORT:        "IMPORT", // right now import just exists, has no functionality yet
-	ASSIGN:        "=",
-	ADD:           "+",
-	MUL:           "*",
-	SUB:           "-",
-	DIV:           "/",
-	MOD:           "%",
-	LPAREN:        "(",
-	RPAREN:        ")",
-	LSQRBRAC:      "[",
-	RSQRBRAC:      "]",
-	BLOCKSTART:    "{",
-	BLOCKEND:      "}",
+	ASSIGN:        "ASSIGN",
+	ADD:           "ADD",
+	MUL:           "MUL",
+	SUB:           "SUB",
+	DIV:           "DIV",
+	MOD:           "MOD",
+	LPAREN:        "LPAREN",
+	RPAREN:        "RPAREN",
+	LSQRBRAC:      "LSQRBRAC",
+	RSQRBRAC:      "RSQRBRAC",
+	BLOCKSTART:    "BLOCKSTART",
+	BLOCKEND:      "BLOCKEND",
 	STRINGLITERAL: "STRINGLITERAL",
 	INTLITERAL:    "INTLITERAL",
-	DOT:           ".",
+	DOT:           "DOT",
 	NEWLINE:       "NEWLINE",
 }
 
@@ -80,16 +80,16 @@ func (t Token) String() string {
 }
 
 type LexedTok struct {
-	pos Position
-	tok Token
-	val string
+	Pos Position
+	Tok Token
+	Val string
 }
 
 func NewLexedTok(pos Position, tok Token, val string) *LexedTok {
 	return &LexedTok{
-		pos: pos,
-		tok: tok,
-		val: val,
+		Pos: pos,
+		Tok: tok,
+		Val: val,
 	}
 }
 

@@ -2,55 +2,91 @@ package main
 
 import (
 	"fmt"
+	"io"
 )
 
+var pr *ParseReader
+
 func Parse(tokens []*LexedTok) (*AST, error) {
-	// look at how https://github.com/shafinsiddique/page/blob/master/page/rdParser.go is structured
+	pr = NewParseReader(tokens)
 	var ast AST
-	for _, lt := range tokens {
-		node, e := parseNode(lt)
-		if e != nil {
-			return nil, e
+	var err error = nil
+	for err != io.EOF {
+		fmt.Println("looping")
+		readtok, err := pr.Read()
+		if err == io.EOF {
+			return &ast, nil
+		} else if err != nil {
+			return nil, err
 		}
-		ast.Children = append(ast.Children, node)
+		node, parseErr := parseNode(readtok)
+		if parseErr != nil {
+			return nil, parseErr
+		}
+		if node != nil {
+			ast.Children = append(ast.Children, node)
+		}
 	}
 	return &ast, nil
 }
 
-func pop(a []*LexedTok) *LexedTok {
-	return a[len(a)-1]
-}
-
-func peek(a []*LexedTok, i int) *LexedTok {
-	return a[0]
+func expect(expected *LexedTok, actual *LexedTok) error {
+	if expected.Tok == actual.Tok {
+		return nil
+	} else {
+		return fmt.Errorf("expected %v, got %v", expected.Tok, actual.Tok)
+	}
 }
 
 func parseNode(lt *LexedTok) (Node, error) {
-	switch lt.tok {
+	switch lt.Tok {
 	case KEYWORD:
-		return parseKeyword()
+		return parseKeyword(lt)
 	case IDENT:
-		return parseIdent()
-	case TYPEANNOT:
-		return parseTypeAnnotation()
+		return parseIdent(lt)
+	case NEWLINE:
+		return nil, nil
 	case BLOCKSTART:
-		return parseBlock()
+		return parseBlock(lt)
+	case EOF:
+		return nil, nil
 	}
-	return nil, fmt.Errorf("unexpected token: %v", lt.tok)
+	return nil, fmt.Errorf("unexpected token: %v", lt.Tok)
 }
 
-func parseKeyword() (*KeywordNode, error) {
-	return nil, nil
+func parseKeyword(tok *LexedTok) (Node, error) {
+	kw := tok.Val
+	if kw == "edef" {
+		// parse next IDENT
+		t, err := pr.Read()
+		if err != nil {
+			return nil, err
+		}
+		ident, err := parseIdent(t)
+		if err != nil {
+			return nil, err
+		}
+		pr.Read()
+		pr.Read()
+		edn := EntryPointDeclNode{
+			Type:     "ENTRYPOINTDECLNODE",
+			Children: []Node{ident},
+		}
+		return edn, nil
+	}
+	return nil, fmt.Errorf("illegal keyword %s", kw)
 }
 
-func parseIdent() (*IdentNode, error) {
-	return nil, nil
+func parseIdent(tok *LexedTok) (Node, error) {
+	// if ident followed by LPAREN then:
+	// if ident preceded by KEYWORD (edef, def) is FuncDecl
+	// if not is FuncCall
+	return IdentNode{
+		Type:  "IDENTNODE",
+		Value: tok.Val,
+	}, nil
 }
 
-func parseTypeAnnotation() (*TypeAnnotationNode, error) {
-	return nil, nil
-}
-
-func parseBlock() (*BlockNode, error) {
+func parseBlock(tok *LexedTok) (Node, error) {
 	return nil, nil
 }
