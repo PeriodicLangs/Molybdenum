@@ -30,11 +30,11 @@ func Parse(tokens []*LexedTok) (*AST, error) {
 	return &ast, nil
 }
 
-func expect(expected *LexedTok, actual *LexedTok) error {
-	if expected.Tok == actual.Tok {
+func expect(expected, actual Token) error {
+	if expected == actual {
 		return nil
 	} else {
-		return fmt.Errorf("expected %v, got %v", expected.Tok, actual.Tok)
+		return fmt.Errorf("expected %v, got %v", expected, actual)
 	}
 }
 
@@ -43,7 +43,7 @@ func parseNode(lt *LexedTok) (Node, error) {
 	case KEYWORD:
 		return parseKeyword(lt)
 	case IDENT:
-		return parseIdent(lt)
+		return parseIdent(nil, lt)
 	case NEWLINE:
 		return nil, nil
 	case BLOCKSTART:
@@ -62,12 +62,10 @@ func parseKeyword(tok *LexedTok) (Node, error) {
 		if err != nil {
 			return nil, err
 		}
-		ident, err := parseIdent(t)
+		ident, err := parseIdent(tok, t)
 		if err != nil {
 			return nil, err
 		}
-		pr.Read()
-		pr.Read()
 		edn := EntryPointDeclNode{
 			Type:     "ENTRYPOINTDECLNODE",
 			Children: []Node{ident},
@@ -77,16 +75,68 @@ func parseKeyword(tok *LexedTok) (Node, error) {
 	return nil, fmt.Errorf("illegal keyword %s", kw)
 }
 
-func parseIdent(tok *LexedTok) (Node, error) {
+func parseIdent(prec, ident *LexedTok) (Node, error) {
 	// if ident followed by LPAREN then:
 	// if ident preceded by KEYWORD (edef, def) is FuncDecl
 	// if not is FuncCall
+	t, err := pr.Read()
+	if err != nil {
+		return nil, err
+	}
+	if t.Tok == LPAREN {
+		if prec.Tok == KEYWORD {
+			if prec.Val == "edef" {
+				_t, err := pr.Read() // this is to consume RPAREN of edef'ed function
+				if err != nil {
+					return nil, err
+				}
+				err = expect(RPAREN, _t.Tok)
+				if err != nil {
+					return nil, err
+				}
+
+				_t, err = pr.Read() // this is to consume BLOCKSTART of edef'ed function
+				if err != nil {
+					return nil, err
+				}
+				err = expect(BLOCKSTART, _t.Tok)
+				if err != nil {
+					return nil, err
+				} else {
+					b, err := parseBlock(_t)
+					if err != nil {
+						return nil, err
+					}
+					return IdentNode{
+						Type:     "IDENTNODE",
+						Value:    ident.Val,
+						Children: []Node{b},
+					}, nil
+				}
+			}
+		} else {
+			return nil, fmt.Errorf("unexpected token: %v", t.Tok)
+		}
+	}
 	return IdentNode{
 		Type:  "IDENTNODE",
-		Value: tok.Val,
+		Value: ident.Val,
 	}, nil
 }
 
 func parseBlock(tok *LexedTok) (Node, error) {
-	return nil, nil
+	t, err := pr.Read()
+	if err != nil {
+		return nil, err
+	}
+	for t.Tok != BLOCKEND {
+		t, err = pr.Read()
+		if err != nil {
+			return nil, err
+		}
+	}
+	return BlockNode{
+		Type:     "BLOCKNODE",
+		Children: []Node{},
+	}, nil
 }

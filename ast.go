@@ -7,7 +7,7 @@ type AST struct {
 func (a *AST) String() string {
 	s := ""
 	for _, child := range a.Children {
-		s = s + "  - " + child.String() + "\n"
+		s = s + child.String() + "\n"
 	}
 	return s
 }

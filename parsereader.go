@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 )
 
@@ -24,7 +23,7 @@ func (p *ParseReader) Read() (*LexedTok, error) {
 		return nil, io.EOF
 	}
 	tok := p.tokens[p.idx]
-	fmt.Println(p.idx)
+	// fmt.Println(p.idx)
 	p.idx++
 	if p.idx >= len(p.tokens) {
 		p.eof = true
