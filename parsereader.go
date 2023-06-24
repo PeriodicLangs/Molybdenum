@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 )
 
@@ -29,4 +30,11 @@ func (p *ParseReader) Read() (*LexedTok, error) {
 		p.eof = true
 	}
 	return tok, nil
+}
+
+func (p *ParseReader) PrintRem() {
+	for _, tok := range p.tokens {
+		fmt.Print(tok)
+		fmt.Print(", ")
+	}
 }

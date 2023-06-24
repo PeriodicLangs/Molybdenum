@@ -149,11 +149,12 @@ func (e EntryPointDeclNode) String() string {
 }
 
 type FuncCallNode struct {
+	Value    string
 	Children []Node
 }
 
-func (f FuncCallNode) getValue() string    { return "FuncCallNode" }
-func (f FuncCallNode) getType() string     { return "" }
+func (f FuncCallNode) getValue() string    { return f.Value }
+func (f FuncCallNode) getType() string     { return "FuncCallNode" }
 func (f FuncCallNode) getChildren() []Node { return f.Children }
 
 func (f FuncCallNode) String() string {

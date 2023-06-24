@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type Token int
 
 const (
@@ -91,6 +93,10 @@ func NewLexedTok(pos Position, tok Token, val string) *LexedTok {
 		Tok: tok,
 		Val: val,
 	}
+}
+
+func (lt *LexedTok) String() string {
+	return fmt.Sprint(lt.Pos) + " " + lt.Tok.String() + " " + lt.Val
 }
 
 var validEntryPointNames = []string{

@@ -84,7 +84,13 @@ func parseIdent(prec, ident *LexedTok) (Node, error) {
 		return nil, err
 	}
 	if t.Tok == LPAREN {
-		if prec.Tok == KEYWORD {
+		if prec == nil {
+			pr.Read()
+			return FuncCallNode{
+				Value:    ident.Val,
+				Children: []Node{},
+			}, nil
+		} else if prec.Tok == KEYWORD {
 			if prec.Val == "edef" {
 				_t, err := pr.Read() // this is to consume RPAREN of edef'ed function
 				if err != nil {
@@ -115,7 +121,7 @@ func parseIdent(prec, ident *LexedTok) (Node, error) {
 				}
 			}
 		} else {
-			return nil, fmt.Errorf("unexpected token: %v", t.Tok)
+			return nil, fmt.Errorf("parseIdent - unexpected token: %v", t.Tok)
 		}
 	}
 	return IdentNode{
@@ -129,14 +135,28 @@ func parseBlock(tok *LexedTok) (Node, error) {
 	if err != nil {
 		return nil, err
 	}
+	var children []Node
 	for t.Tok != BLOCKEND {
 		t, err = pr.Read()
 		if err != nil {
 			return nil, err
 		}
+		if t.Tok == BLOCKEND {
+			break
+		}
+		c, err := parseNode(t)
+		if err != nil {
+			return nil, err
+		}
+		children = append(children, c)
 	}
+	_, err = pr.Read()
+	if err != nil {
+		return nil, err
+	}
+	pr.PrintRem()
 	return BlockNode{
 		Type:     "BLOCKNODE",
-		Children: []Node{},
+		Children: children,
 	}, nil
 }
