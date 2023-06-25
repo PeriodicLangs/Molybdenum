@@ -65,11 +65,21 @@ func (t *Type) Literal() string {
 }
 
 type Block struct {
-	Token      lex.Token
+	Token      lex.LexedTok
 	Statements []Statement
 }
 
 func (b *Block) statementNode() {}
 func (b *Block) Literal() string {
 	return fmt.Sprintf("token: %s, statements: %v\n", b.Token.String(), b.Statements)
+}
+
+type ReturnStatement struct {
+	Token       lex.LexedTok
+	ReturnValue Expression
+}
+
+func (ret *ReturnStatement) statementNode() {}
+func (ret *ReturnStatement) Literal() string {
+	return fmt.Sprintf("token: %s, value: %s\n", ret.Token.Tok.String(), ret.ReturnValue.Literal())
 }

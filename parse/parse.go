@@ -70,8 +70,8 @@ func (p *Parser) expectPeek(t lex.Token) bool {
 
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.curTok.Tok {
-	case lex.EDEF:
-		return p.parseEDEF()
+	case lex.RETURN:
+		return p.parseReturn()
 	case lex.VAR:
 		return p.parseVar()
 	default:
@@ -104,5 +104,16 @@ func (p *Parser) parseVar() *ast.VarStatement {
 	for !p.curTokenIs(lex.NEWLINE) {
 		p.nextTok()
 	}
+	return stmt
+}
+
+func (p *Parser) parseReturn() *ast.ReturnStatement {
+	stmt := &ast.ReturnStatement{Token: p.curTok}
+	p.nextTok()
+
+	for !p.curTokenIs(lex.NEWLINE) {
+		p.nextTok()
+	}
+
 	return stmt
 }
