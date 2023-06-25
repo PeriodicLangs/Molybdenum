@@ -97,7 +97,7 @@ func (l *Lexer) Lex() (Position, Token, string) {
 				// need to check if it's a keyword
 				for _, keyword := range keywords {
 					if keyword == lit {
-						return startPos, KEYWORD, lit
+						return startPos, kwmap[keyword], lit
 					}
 				}
 				// need to check if it's a type annotation

@@ -2,18 +2,17 @@ package parse
 
 import (
 	"fmt"
-	"io"
 
 	"github.com/westsi/molybdenum/lex"
 )
 
 type ParseReader struct {
-	tokens []*lex.LexedTok
+	tokens []lex.LexedTok
 	idx    int
 	eof    bool
 }
 
-func NewParseReader(tokens []*lex.LexedTok) *ParseReader {
+func NewParseReader(tokens []lex.LexedTok) *ParseReader {
 	return &ParseReader{
 		tokens: tokens,
 		idx:    0,
@@ -21,9 +20,9 @@ func NewParseReader(tokens []*lex.LexedTok) *ParseReader {
 	}
 }
 
-func (p *ParseReader) Read() (*lex.LexedTok, error) {
+func (p *ParseReader) Read() lex.LexedTok {
 	if p.eof {
-		return nil, io.EOF
+		return lex.LexedTok{Pos: lex.Position{}, Tok: lex.EOF, Val: ""}
 	}
 	tok := p.tokens[p.idx]
 	// fmt.Println(p.idx)
@@ -31,7 +30,7 @@ func (p *ParseReader) Read() (*lex.LexedTok, error) {
 	if p.idx >= len(p.tokens) {
 		p.eof = true
 	}
-	return tok, nil
+	return tok
 }
 
 func (p *ParseReader) PrintRem() {

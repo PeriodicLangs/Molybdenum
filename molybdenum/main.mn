@@ -2,9 +2,9 @@
 @import goodbye as g
 
 edef main() {
-    string name = "Joe"
+    var string name = "Joe"
     name = "John"
-    int number = 10 * 5 - 1
+    var int number = 10 * 5 - 1
     hello.Hello(name)
     g.Goodbye("Joe Bloggs")
 }

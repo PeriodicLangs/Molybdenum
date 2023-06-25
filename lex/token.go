@@ -8,7 +8,20 @@ const (
 	EOF Token = iota
 	ILLEGAL
 	IDENT
-	KEYWORD
+	// language keywords
+	EDEF
+	DEF
+	MDEF
+	VAR
+	IF
+	ELSE
+	FOR
+	WHILE
+	RETURN
+	BREAK
+	CONTINUE
+	AS
+	// end of language keywords
 	TYPEANNOT
 	IMPORT
 	ASSIGN
@@ -33,7 +46,18 @@ var tokens = []string{
 	EOF:           "EOF",
 	ILLEGAL:       "ILLEGAL",
 	IDENT:         "IDENT",
-	KEYWORD:       "KEYWORD",
+	EDEF:          "EDEF",
+	DEF:           "DEF",
+	MDEF:          "MDEF",
+	VAR:           "VAR",
+	IF:            "IF",
+	ELSE:          "ELSE",
+	FOR:           "FOR",
+	WHILE:         "WHILE",
+	RETURN:        "RETURN",
+	BREAK:         "BREAK",
+	CONTINUE:      "CONTINUE",
+	AS:            "AS",
 	TYPEANNOT:     "TYPEANNOT",
 	IMPORT:        "IMPORT", // right now import just exists, has no functionality yet
 	ASSIGN:        "ASSIGN",
@@ -69,6 +93,21 @@ var keywords = []string{
 	"as",
 }
 
+var kwmap = map[string]Token{
+	"edef":     EDEF,
+	"def":      DEF,
+	"mdef":     MDEF,
+	"var":      VAR,
+	"if":       IF,
+	"else":     ELSE,
+	"for":      FOR,
+	"while":    WHILE,
+	"return":   RETURN,
+	"break":    BREAK,
+	"continue": CONTINUE,
+	"as":       AS,
+}
+
 var types = []string{
 	"string",
 	"int",
@@ -87,8 +126,8 @@ type LexedTok struct {
 	Val string
 }
 
-func NewLexedTok(pos Position, tok Token, val string) *LexedTok {
-	return &LexedTok{
+func NewLexedTok(pos Position, tok Token, val string) LexedTok {
+	return LexedTok{
 		Pos: pos,
 		Tok: tok,
 		Val: val,

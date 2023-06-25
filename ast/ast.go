@@ -1,13 +1,17 @@
 package ast
 
-type AST struct {
-	Children []Node
+type Program struct {
+	Statements []Statement
 }
 
-func (a *AST) String() string {
-	s := ""
-	for _, child := range a.Children {
-		s = s + child.String() + "\n"
+func (p *Program) Literal() string {
+	if len(p.Statements) > 0 {
+		s := ""
+		for _, stmt := range p.Statements {
+			s += "\n" + stmt.Literal()
+		}
+		return s
+	} else {
+		return ""
 	}
-	return s
 }
