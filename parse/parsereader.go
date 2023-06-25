@@ -1,17 +1,19 @@
-package main
+package parse
 
 import (
 	"fmt"
 	"io"
+
+	"github.com/westsi/molybdenum/lex"
 )
 
 type ParseReader struct {
-	tokens []*LexedTok
+	tokens []*lex.LexedTok
 	idx    int
 	eof    bool
 }
 
-func NewParseReader(tokens []*LexedTok) *ParseReader {
+func NewParseReader(tokens []*lex.LexedTok) *ParseReader {
 	return &ParseReader{
 		tokens: tokens,
 		idx:    0,
@@ -19,7 +21,7 @@ func NewParseReader(tokens []*LexedTok) *ParseReader {
 	}
 }
 
-func (p *ParseReader) Read() (*LexedTok, error) {
+func (p *ParseReader) Read() (*lex.LexedTok, error) {
 	if p.eof {
 		return nil, io.EOF
 	}
