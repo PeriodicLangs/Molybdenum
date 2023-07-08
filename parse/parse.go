@@ -2,6 +2,7 @@ package parse
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/westsi/molybdenum/ast"
 	"github.com/westsi/molybdenum/lex"
@@ -14,6 +15,24 @@ type Parser struct {
 
 	curTok  lex.LexedTok
 	peekTok lex.LexedTok
+
+	prefixParseFuncs map[lex.Token]prefixParseFunc
+	infixParseFuncs  map[lex.Token]infixParseFunc
+}
+
+type (
+	prefixParseFunc func() ast.Expression
+	infixParseFunc  func(ast.Expression) ast.Expression
+)
+
+func (p *Parser) registerPrefix(tokenType lex.Token, fn prefixParseFunc) {
+	p.prefixParseFuncs[tokenType] = fn
+}
+func (p *Parser) registerInfix(tokenType lex.Token, fn infixParseFunc) {
+	p.infixParseFuncs[tokenType] = fn
+}
+func (p *Parser) noPrefixParseFuncError(t lex.Token) {
+	p.errors = append(p.errors, fmt.Sprintf("no prefix parse function for %s found", t))
 }
 
 func New(tokens []lex.LexedTok) *Parser {
@@ -21,6 +40,11 @@ func New(tokens []lex.LexedTok) *Parser {
 	p := &Parser{pr: pr, errors: []string{}}
 	p.nextTok()
 	p.nextTok()
+
+	p.prefixParseFuncs = make(map[lex.Token]prefixParseFunc)
+	p.infixParseFuncs = make(map[lex.Token]infixParseFunc)
+	p.registerPrefix(lex.IDENT, p.parseIdentifier)
+	p.registerPrefix(lex.INTLITERAL, p.parseIntegerLiteral)
 	return p
 }
 
@@ -71,20 +95,45 @@ func (p *Parser) expectPeek(t lex.Token) bool {
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.curTok.Tok {
 	case lex.RETURN:
-		return p.parseReturn()
+		return p.parseReturnStatement()
 	case lex.VAR:
-		return p.parseVar()
+		return p.parseVarStatement()
 	default:
-		return nil
+		return p.parseExpressionStatement()
 	}
 }
 
-func (p *Parser) parseEDEF() *ast.EDEFStatement {
-	stmt := &ast.EDEFStatement{Token: p.curTok}
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	stmt := &ast.ExpressionStatement{Token: p.curTok}
+	stmt.Expression = p.parseExpression(LOWEST)
+	if p.peekTokenIs(lex.NEWLINE) {
+		p.nextTok()
+	}
 	return stmt
 }
 
-func (p *Parser) parseVar() *ast.VarStatement {
+func (p *Parser) parseExpression(prec int) ast.Expression {
+	prefix := p.prefixParseFuncs[p.curTok.Tok]
+	if prefix == nil {
+		p.noPrefixParseFuncError(p.curTok.Tok)
+		return nil
+	}
+	lExp := prefix()
+
+	return lExp
+}
+
+func (p *Parser) parseIntegerLiteral() ast.Expression {
+	lit := &ast.IntegerLiteral{Token: p.curTok}
+	val, err := strconv.ParseInt(p.curTok.Val, 0, 64)
+	if err != nil {
+		p.errors = append(p.errors, fmt.Sprintf("could not parse %q as integer: error: %v", p.curTok.Val, err.Error()))
+	}
+	lit.Value = val
+	return lit
+}
+
+func (p *Parser) parseVarStatement() *ast.VarStatement {
 	stmt := &ast.VarStatement{Token: p.curTok}
 
 	if !p.expectPeek(lex.TYPEANNOT) {
@@ -100,14 +149,12 @@ func (p *Parser) parseVar() *ast.VarStatement {
 	if !p.expectPeek(lex.ASSIGN) {
 		p.e(lex.ASSIGN, p.curTok.Tok)
 	}
-
-	for !p.curTokenIs(lex.NEWLINE) {
-		p.nextTok()
-	}
+	p.nextTok()
+	stmt.Value = p.parseExpressionStatement()
 	return stmt
 }
 
-func (p *Parser) parseReturn() *ast.ReturnStatement {
+func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	stmt := &ast.ReturnStatement{Token: p.curTok}
 	p.nextTok()
 
@@ -116,4 +163,8 @@ func (p *Parser) parseReturn() *ast.ReturnStatement {
 	}
 
 	return stmt
+}
+
+func (p *Parser) parseIdentifier() ast.Expression {
+	return &ast.Identifier{Token: p.curTok, Value: p.curTok.String()}
 }
