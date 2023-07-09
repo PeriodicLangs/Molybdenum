@@ -40,6 +40,10 @@ const (
 	STRINGLITERAL
 	DOT
 	NEWLINE
+	AND
+	NOT
+	GT
+	LT
 )
 
 var tokens = []string{
@@ -76,6 +80,10 @@ var tokens = []string{
 	INTLITERAL:    "INTLITERAL",
 	DOT:           "DOT",
 	NEWLINE:       "NEWLINE",
+	AND:           "AND",
+	NOT:           "NOT",
+	GT:            "GT",
+	LT:            "LT",
 }
 
 var keywords = []string{

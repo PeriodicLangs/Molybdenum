@@ -55,6 +55,12 @@ func (l *Lexer) Lex() (Position, Token, string) {
 			return l.pos, MOD, string(r)
 		case '=':
 			return l.pos, ASSIGN, string(r)
+		case '!':
+			return l.pos, NOT, string(r)
+		case '<':
+			return l.pos, LT, string(r)
+		case '>':
+			return l.pos, GT, string(r)
 		case '(':
 			return l.pos, LPAREN, string(r)
 		case ')':

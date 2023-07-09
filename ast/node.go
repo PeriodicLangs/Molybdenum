@@ -8,6 +8,7 @@ import (
 
 type Node interface {
 	Literal() string
+	String() string
 }
 
 type Statement interface {
@@ -43,6 +44,9 @@ func (vs *VarStatement) Literal() string {
 	return fmt.Sprintf("token: %s, name: %s, value: %s, type: %s\n", vs.Token.Tok.String(), vs.Name.Literal(), vs.Value.Literal(), vs.Type.Literal())
 	// return fmt.Sprintf("token: %s, name: %s, type: %s\n", vs.Token.Tok.String(), vs.Name.Literal(), vs.Type.Literal())
 }
+func (vs *VarStatement) String() string {
+	return fmt.Sprintf("(%s, %s, = %s)", vs.Type.String(), vs.Name.String(), vs.Value.String())
+}
 
 type Identifier struct {
 	Token lex.LexedTok
@@ -53,6 +57,9 @@ func (i *Identifier) expressionNode() {}
 func (i *Identifier) Literal() string {
 	return fmt.Sprintf("{%s}", i.Value)
 }
+func (i *Identifier) String() string {
+	return i.Value
+}
 
 type Type struct {
 	Token lex.LexedTok
@@ -62,6 +69,9 @@ type Type struct {
 func (t *Type) statementNode() {}
 func (t *Type) Literal() string {
 	return fmt.Sprintf("{%s, %s}", t.Token.Tok.String(), t.Value)
+}
+func (t *Type) String() string {
+	return t.Value
 }
 
 type Block struct {
@@ -83,6 +93,9 @@ func (ret *ReturnStatement) statementNode() {}
 func (ret *ReturnStatement) Literal() string {
 	return fmt.Sprintf("token: %s, value: %s\n", ret.Token.Tok.String(), ret.ReturnValue.Literal())
 }
+func (ret *ReturnStatement) String() string {
+	return fmt.Sprintf("(return %s)", ret.ReturnValue.String())
+}
 
 type ExpressionStatement struct {
 	Token      lex.LexedTok
@@ -94,6 +107,9 @@ func (exp *ExpressionStatement) statementNode()  {}
 func (exp *ExpressionStatement) Literal() string {
 	return fmt.Sprintf("token: %s, value: %s\n", exp.Token.Tok.String(), exp.Expression.Literal())
 }
+func (exp *ExpressionStatement) String() string {
+	return exp.Expression.String()
+}
 
 type IntegerLiteral struct {
 	Token lex.LexedTok
@@ -103,6 +119,9 @@ type IntegerLiteral struct {
 func (i *IntegerLiteral) expressionNode() {}
 func (i *IntegerLiteral) Literal() string {
 	return fmt.Sprintf("token: %s, value: %d\n", i.Token.Tok.String(), i.Value)
+}
+func (i *IntegerLiteral) String() string {
+	return fmt.Sprintf("%d", i.Value)
 }
 
 type PrefixExpression struct {
@@ -114,4 +133,22 @@ type PrefixExpression struct {
 func (p *PrefixExpression) expressionNode() {}
 func (p *PrefixExpression) Literal() string {
 	return fmt.Sprintf("token: %s, operator: %s, right: %s\n", p.Token.Tok.String(), p.Operator, p.Right.Literal())
+}
+func (p *PrefixExpression) String() string {
+	return fmt.Sprintf("(%s %s)", p.Operator, p.Right.String())
+}
+
+type InfixExpression struct {
+	Token    lex.LexedTok
+	Left     Expression
+	Operator string
+	Right    Expression
+}
+
+func (i *InfixExpression) expressionNode() {}
+func (i *InfixExpression) Literal() string {
+	return fmt.Sprintf("token: %s, left: %s, operator: %s, right: %s\n", i.Token.Tok.String(), i.Left.Literal(), i.Operator, i.Right.Literal())
+}
+func (i *InfixExpression) String() string {
+	return fmt.Sprintf("(%s %s %s)", i.Left.String(), i.Operator, i.Right.String())
 }

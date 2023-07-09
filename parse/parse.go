@@ -42,9 +42,18 @@ func New(tokens []lex.LexedTok) *Parser {
 	p.nextTok()
 
 	p.prefixParseFuncs = make(map[lex.Token]prefixParseFunc)
-	p.infixParseFuncs = make(map[lex.Token]infixParseFunc)
 	p.registerPrefix(lex.IDENT, p.parseIdentifier)
 	p.registerPrefix(lex.INTLITERAL, p.parseIntegerLiteral)
+	p.registerPrefix(lex.NOT, p.parsePrefixExpression)
+	p.registerPrefix(lex.SUB, p.parsePrefixExpression)
+	p.infixParseFuncs = make(map[lex.Token]infixParseFunc)
+	p.registerInfix(lex.ADD, p.parseInfixExpression)
+	p.registerInfix(lex.SUB, p.parseInfixExpression)
+	p.registerInfix(lex.MUL, p.parseInfixExpression)
+	p.registerInfix(lex.DIV, p.parseInfixExpression)
+	p.registerInfix(lex.ASSIGN, p.parseInfixExpression)
+	p.registerInfix(lex.LT, p.parseInfixExpression)
+	p.registerInfix(lex.GT, p.parseInfixExpression)
 	return p
 }
 
@@ -120,6 +129,15 @@ func (p *Parser) parseExpression(prec int) ast.Expression {
 	}
 	lExp := prefix()
 
+	for !p.peekTokenIs(lex.NEWLINE) && prec < p.peekPrecedence() {
+		infix := p.infixParseFuncs[p.peekTok.Tok]
+		if infix == nil {
+			return lExp
+		}
+		p.nextTok()
+		lExp = infix(lExp)
+	}
+
 	return lExp
 }
 
@@ -131,6 +149,28 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	}
 	lit.Value = val
 	return lit
+}
+
+func (p *Parser) parsePrefixExpression() ast.Expression {
+	exp := &ast.PrefixExpression{
+		Token:    p.curTok,
+		Operator: p.curTok.Val,
+	}
+	p.nextTok()
+	exp.Right = p.parseExpression(PREFIX)
+	return exp
+}
+
+func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
+	exp := &ast.InfixExpression{
+		Token:    p.curTok,
+		Operator: p.curTok.Val,
+		Left:     left,
+	}
+	precedence := p.curPrecedence()
+	p.nextTok()
+	exp.Right = p.parseExpression(precedence)
+	return exp
 }
 
 func (p *Parser) parseVarStatement() *ast.VarStatement {

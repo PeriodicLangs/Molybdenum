@@ -32,6 +32,6 @@ func main() {
 
 	p := parse.New(tokens)
 	ast := p.Parse()
-	fmt.Println(ast.Literal())
+	fmt.Println(ast.String())
 	fmt.Printf("Errors: %s\n", p.Errors())
 }

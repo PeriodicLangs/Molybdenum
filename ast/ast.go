@@ -15,3 +15,15 @@ func (p *Program) Literal() string {
 		return ""
 	}
 }
+
+func (p *Program) String() string {
+	if len(p.Statements) > 0 {
+		s := ""
+		for _, stmt := range p.Statements {
+			s += "\n" + stmt.String()
+		}
+		return s
+	} else {
+		return ""
+	}
+}
