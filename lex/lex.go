@@ -54,7 +54,8 @@ func (l *Lexer) Lex() (Position, Token, string) {
 		case '%':
 			return l.pos, MOD, string(r)
 		case '=':
-			return l.pos, ASSIGN, string(r)
+			t, s := l.lexEquals(r)
+			return l.pos, t, s
 		case '!':
 			return l.pos, NOT, string(r)
 		case '<':
@@ -111,6 +112,12 @@ func (l *Lexer) Lex() (Position, Token, string) {
 					if tannot == lit {
 						return startPos, TYPEANNOT, lit
 					}
+				}
+				// need to check if it's a boolean value
+				if lit == "true" {
+					return startPos, TRUE, lit
+				} else if lit == "false" {
+					return startPos, FALSE, lit
 				}
 				return startPos, IDENT, lit
 			} else {
@@ -209,5 +216,29 @@ func (l *Lexer) lexCompilerInstruction() string {
 		} else {
 			return lit
 		}
+	}
+}
+
+func (l *Lexer) lexEquals(r rune) (Token, string) {
+	s := string(r)
+	r, _, _ = l.reader.ReadRune()
+	s = s + string(r)
+	switch r {
+	case '=':
+		return EQUALS, s
+	default:
+		return ASSIGN, s
+	}
+}
+
+func (l *Lexer) lexBang(r rune) (Token, string) {
+	s := string(r)
+	r, _, _ = l.reader.ReadRune()
+	s = s + string(r)
+	switch r {
+	case '=':
+		return NOTEQUALS, s
+	default:
+		return NOT, s
 	}
 }

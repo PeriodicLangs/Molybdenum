@@ -14,13 +14,14 @@ const (
 )
 
 var precedences = map[lex.Token]int{
-	lex.ASSIGN: EQUALS,
-	lex.LT:     LESSGREATER,
-	lex.GT:     LESSGREATER,
-	lex.ADD:    SUM,
-	lex.SUB:    SUM,
-	lex.MUL:    PRODUCT,
-	lex.DIV:    PRODUCT,
+	lex.EQUALS:    EQUALS,
+	lex.NOTEQUALS: EQUALS,
+	lex.LT:        LESSGREATER,
+	lex.GT:        LESSGREATER,
+	lex.ADD:       SUM,
+	lex.SUB:       SUM,
+	lex.MUL:       PRODUCT,
+	lex.DIV:       PRODUCT,
 }
 
 func (p *Parser) peekPrecedence() int {

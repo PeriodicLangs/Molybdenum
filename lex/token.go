@@ -44,6 +44,10 @@ const (
 	NOT
 	GT
 	LT
+	TRUE
+	FALSE
+	NOTEQUALS
+	EQUALS
 )
 
 var tokens = []string{
@@ -84,6 +88,10 @@ var tokens = []string{
 	NOT:           "NOT",
 	GT:            "GT",
 	LT:            "LT",
+	TRUE:          "TRUE",
+	FALSE:         "FALSE",
+	NOTEQUALS:     "NOTEQUALS",
+	EQUALS:        "EQUALS",
 }
 
 var keywords = []string{

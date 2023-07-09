@@ -1,1 +1,1 @@
--a * b
+var bool i = 3 > 5 == false

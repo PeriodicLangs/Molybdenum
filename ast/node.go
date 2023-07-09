@@ -58,7 +58,7 @@ func (i *Identifier) Literal() string {
 	return fmt.Sprintf("{%s}", i.Value)
 }
 func (i *Identifier) String() string {
-	return i.Value
+	return i.Token.Val
 }
 
 type Type struct {
@@ -151,4 +151,17 @@ func (i *InfixExpression) Literal() string {
 }
 func (i *InfixExpression) String() string {
 	return fmt.Sprintf("(%s %s %s)", i.Left.String(), i.Operator, i.Right.String())
+}
+
+type Boolean struct {
+	Token lex.LexedTok
+	Value bool
+}
+
+func (b *Boolean) expressionNode() {}
+func (b *Boolean) Literal() string {
+	return fmt.Sprintf("token: %s, value: %t\n", b.Token.Tok.String(), b.Value)
+}
+func (b *Boolean) String() string {
+	return fmt.Sprintf("%t", b.Value)
 }

@@ -46,12 +46,15 @@ func New(tokens []lex.LexedTok) *Parser {
 	p.registerPrefix(lex.INTLITERAL, p.parseIntegerLiteral)
 	p.registerPrefix(lex.NOT, p.parsePrefixExpression)
 	p.registerPrefix(lex.SUB, p.parsePrefixExpression)
+	p.registerPrefix(lex.TRUE, p.parseBoolean)
+	p.registerPrefix(lex.FALSE, p.parseBoolean)
 	p.infixParseFuncs = make(map[lex.Token]infixParseFunc)
 	p.registerInfix(lex.ADD, p.parseInfixExpression)
 	p.registerInfix(lex.SUB, p.parseInfixExpression)
 	p.registerInfix(lex.MUL, p.parseInfixExpression)
 	p.registerInfix(lex.DIV, p.parseInfixExpression)
-	p.registerInfix(lex.ASSIGN, p.parseInfixExpression)
+	p.registerInfix(lex.EQUALS, p.parseInfixExpression)
+	p.registerInfix(lex.NOTEQUALS, p.parseInfixExpression)
 	p.registerInfix(lex.LT, p.parseInfixExpression)
 	p.registerInfix(lex.GT, p.parseInfixExpression)
 	return p
@@ -171,6 +174,10 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	p.nextTok()
 	exp.Right = p.parseExpression(precedence)
 	return exp
+}
+
+func (p *Parser) parseBoolean() ast.Expression {
+	return &ast.Boolean{Token: p.curTok, Value: p.curTokenIs(lex.TRUE)}
 }
 
 func (p *Parser) parseVarStatement() *ast.VarStatement {
