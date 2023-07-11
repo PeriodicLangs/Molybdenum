@@ -21,17 +21,6 @@ type Expression interface {
 	expressionNode()
 }
 
-type EDEFStatement struct {
-	Token lex.LexedTok
-	Name  *Identifier
-	Value *Block
-}
-
-func (es *EDEFStatement) statementNode() {}
-func (es *EDEFStatement) Literal() string {
-	return fmt.Sprintf("token: %s, name: %s, value: %s\n", es.Token.Tok.String(), es.Name.Literal(), es.Value.Literal())
-}
-
 type VarStatement struct {
 	Token lex.LexedTok
 	Name  *Identifier
@@ -72,16 +61,6 @@ func (t *Type) Literal() string {
 }
 func (t *Type) String() string {
 	return t.Value
-}
-
-type Block struct {
-	Token      lex.LexedTok
-	Statements []Statement
-}
-
-func (b *Block) statementNode() {}
-func (b *Block) Literal() string {
-	return fmt.Sprintf("token: %s, statements: %v\n", b.Token.String(), b.Statements)
 }
 
 type ReturnStatement struct {
@@ -164,4 +143,44 @@ func (b *Boolean) Literal() string {
 }
 func (b *Boolean) String() string {
 	return fmt.Sprintf("%t", b.Value)
+}
+
+type IfExpression struct {
+	Token       lex.LexedTok
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
+}
+
+func (i *IfExpression) expressionNode() {}
+func (i *IfExpression) Literal() string {
+	return fmt.Sprintf("token: %s, condition: %s, consequence: %s, alternative: %s\n", i.Token.Tok.String(), i.Condition.Literal(), i.Consequence.Literal(), i.Alternative.Literal())
+}
+func (i *IfExpression) String() string {
+	if i.Alternative != nil {
+		return fmt.Sprintf("(if %s %s else %s)", i.Condition.String(), i.Consequence.String(), i.Alternative.String())
+	}
+	return fmt.Sprintf("(if %s %s)", i.Condition.String(), i.Consequence.String())
+}
+
+type BlockStatement struct {
+	Token      lex.LexedTok
+	Statements []Statement
+}
+
+func (b *BlockStatement) statementNode() {}
+func (b *BlockStatement) Literal() string {
+	stmtString := ""
+	for _, stmt := range b.Statements {
+		stmtString += stmt.Literal()
+		stmtString += ","
+	}
+	return fmt.Sprintf("token: %s, statements: %s\n", b.Token.Tok.String(), stmtString)
+}
+func (b *BlockStatement) String() string {
+	s := ""
+	for _, stmt := range b.Statements {
+		s += "," + stmt.String()
+	}
+	return s
 }

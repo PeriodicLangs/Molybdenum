@@ -48,6 +48,7 @@ func New(tokens []lex.LexedTok) *Parser {
 	p.registerPrefix(lex.SUB, p.parsePrefixExpression)
 	p.registerPrefix(lex.TRUE, p.parseBoolean)
 	p.registerPrefix(lex.FALSE, p.parseBoolean)
+	p.registerPrefix(lex.IF, p.parseIfExpression)
 	p.infixParseFuncs = make(map[lex.Token]infixParseFunc)
 	p.registerInfix(lex.ADD, p.parseInfixExpression)
 	p.registerInfix(lex.SUB, p.parseInfixExpression)
@@ -110,6 +111,9 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseReturnStatement()
 	case lex.VAR:
 		return p.parseVarStatement()
+	case lex.NEWLINE:
+		fmt.Println("newline")
+		return nil
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -178,6 +182,58 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 
 func (p *Parser) parseBoolean() ast.Expression {
 	return &ast.Boolean{Token: p.curTok, Value: p.curTokenIs(lex.TRUE)}
+}
+
+func (p *Parser) parseIfExpression() ast.Expression {
+	exp := &ast.IfExpression{Token: p.curTok}
+
+	if !p.expectPeek(lex.LPAREN) {
+		return nil
+	}
+	p.nextTok()
+	exp.Condition = p.parseExpression(LOWEST)
+	if !p.expectPeek(lex.RPAREN) {
+		return nil
+	}
+
+	if !p.expectPeek(lex.BLOCKSTART) {
+		return nil
+	}
+	exp.Consequence = p.parseBlockStatement()
+
+	if p.peekTokenIs(lex.ELSE) {
+		p.nextTok()
+
+		if !p.expectPeek(lex.BLOCKSTART) {
+			return nil
+		}
+		exp.Alternative = p.parseBlockStatement()
+	}
+
+	return exp
+}
+
+func (p *Parser) parseBlockStatement() *ast.BlockStatement {
+	block := &ast.BlockStatement{Token: p.curTok}
+	block.Statements = []ast.Statement{}
+	p.nextTok()
+	if p.curTokenIs(lex.NEWLINE) {
+		p.nextTok()
+	}
+	canCont := !p.curTokenIs(lex.BLOCKEND) && !p.curTokenIs(lex.EOF)
+	for canCont {
+		stmt := p.parseStatement()
+		if stmt != nil {
+			block.Statements = append(block.Statements, stmt)
+		}
+		p.nextTok()
+		if p.peekTokenIs(lex.NEWLINE) {
+			p.nextTok()
+			p.nextTok()
+		}
+		canCont = !p.curTokenIs(lex.BLOCKEND) && !p.curTokenIs(lex.EOF)
+	}
+	return block
 }
 
 func (p *Parser) parseVarStatement() *ast.VarStatement {

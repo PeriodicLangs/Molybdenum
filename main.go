@@ -13,7 +13,7 @@ func main() {
 	// 	"Print(\"Hello World\")\n" +
 	// 	"}")
 
-	reader, err := os.Open("molybdenum/var.mn")
+	reader, err := os.Open("molybdenum/conditional.mn")
 	if err != nil {
 		panic(err)
 	}
@@ -32,6 +32,6 @@ func main() {
 
 	p := parse.New(tokens)
 	ast := p.Parse()
-	fmt.Println(ast.String())
 	fmt.Printf("Errors: %s\n", p.Errors())
+	fmt.Println(ast.String())
 }
