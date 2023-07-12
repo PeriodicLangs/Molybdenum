@@ -184,3 +184,37 @@ func (b *BlockStatement) String() string {
 	}
 	return s
 }
+
+type FunctionDefinition struct {
+	Token      lex.LexedTok
+	Parameters []*Parameter
+	Body       *BlockStatement
+	Name       *Identifier
+}
+
+func (f *FunctionDefinition) expressionNode() {}
+func (f *FunctionDefinition) Literal() string {
+	return fmt.Sprintf("token: %s, parameters: %s, body: %s, name: %s\n", f.Token.Tok.String(), f.Parameters, f.Body.Literal(), f.Name.Literal())
+}
+func (f *FunctionDefinition) String() string {
+	ps := ""
+	for _, p := range f.Parameters {
+		ps += p.String()
+		ps += ", "
+	}
+	return fmt.Sprintf("(func %s (%s) {%s})", f.Name.String(), ps, f.Body.String())
+}
+
+type Parameter struct {
+	Token lex.LexedTok
+	Name  *Identifier
+	Type  *Type
+}
+
+func (p *Parameter) expressionNode() {}
+func (p *Parameter) Literal() string {
+	return fmt.Sprintf("token: %s, name: %s, type: %s\n", p.Token.Tok.String(), p.Name.Literal(), p.Type.Literal())
+}
+func (p *Parameter) String() string {
+	return fmt.Sprintf("%s %s", p.Name.String(), p.Type.String())
+}

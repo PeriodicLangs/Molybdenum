@@ -9,9 +9,9 @@ const (
 	ILLEGAL
 	IDENT
 	// language keywords
-	EDEF
-	DEF
-	MDEF
+	EFUNC
+	FUNC
+	METH
 	VAR
 	IF
 	ELSE
@@ -48,15 +48,16 @@ const (
 	FALSE
 	NOTEQUALS
 	EQUALS
+	COMMA
 )
 
 var tokens = []string{
 	EOF:           "EOF",
 	ILLEGAL:       "ILLEGAL",
 	IDENT:         "IDENT",
-	EDEF:          "EDEF",
-	DEF:           "DEF",
-	MDEF:          "MDEF",
+	EFUNC:         "EFUNC",
+	FUNC:          "FUNC",
+	METH:          "METH",
 	VAR:           "VAR",
 	IF:            "IF",
 	ELSE:          "ELSE",
@@ -92,12 +93,13 @@ var tokens = []string{
 	FALSE:         "FALSE",
 	NOTEQUALS:     "NOTEQUALS",
 	EQUALS:        "EQUALS",
+	COMMA:         "COMMA",
 }
 
 var keywords = []string{
-	"edef",
-	"def",
-	"mdef",
+	"efunc",
+	"func",
+	"meth",
 	"var",
 	"if",
 	"else",
@@ -110,9 +112,9 @@ var keywords = []string{
 }
 
 var kwmap = map[string]Token{
-	"edef":     EDEF,
-	"def":      DEF,
-	"mdef":     MDEF,
+	"efunc":    EFUNC,
+	"func":     FUNC,
+	"meth":     METH,
 	"var":      VAR,
 	"if":       IF,
 	"else":     ELSE,

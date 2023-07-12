@@ -49,6 +49,7 @@ func New(tokens []lex.LexedTok) *Parser {
 	p.registerPrefix(lex.TRUE, p.parseBoolean)
 	p.registerPrefix(lex.FALSE, p.parseBoolean)
 	p.registerPrefix(lex.IF, p.parseIfExpression)
+	p.registerPrefix(lex.FUNC, p.parseFunctionDefinition)
 	p.infixParseFuncs = make(map[lex.Token]infixParseFunc)
 	p.registerInfix(lex.ADD, p.parseInfixExpression)
 	p.registerInfix(lex.SUB, p.parseInfixExpression)
@@ -236,6 +237,53 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	return block
 }
 
+func (p *Parser) parseFunctionDefinition() ast.Expression {
+	fd := &ast.FunctionDefinition{Token: p.curTok}
+	p.nextTok()
+	fd.Name = &ast.Identifier{Token: p.curTok, Value: p.curTok.Val}
+	if !p.expectPeek(lex.LPAREN) {
+		return nil
+	}
+	fd.Parameters = p.parseFunctionParameters()
+	if !p.expectPeek(lex.BLOCKSTART) {
+		return nil
+	}
+	fd.Body = p.parseBlockStatement()
+	return fd
+}
+
+func (p *Parser) parseFunctionParameters() []*ast.Parameter {
+	parameters := []*ast.Parameter{}
+	if p.peekTokenIs(lex.RPAREN) {
+		p.nextTok()
+		return parameters
+	}
+	p.nextTok()
+	param := &ast.Parameter{Token: p.curTok, Name: &ast.Identifier{Token: p.curTok, Value: p.curTok.Val}}
+	p.nextTok()
+	if !p.curTokenIs(lex.TYPEANNOT) {
+		p.e(lex.TYPEANNOT, p.curTok.Tok)
+	}
+	param.Type = &ast.Type{Token: p.curTok, Value: p.curTok.Val}
+	parameters = append(parameters, param)
+
+	for p.peekTokenIs(lex.COMMA) {
+		p.nextTok()
+		p.nextTok()
+		param := &ast.Parameter{Token: p.curTok, Name: &ast.Identifier{Token: p.curTok, Value: p.curTok.Val}}
+		p.nextTok()
+		if !p.curTokenIs(lex.TYPEANNOT) {
+			p.e(lex.TYPEANNOT, p.curTok.Tok)
+		}
+		param.Type = &ast.Type{Token: p.curTok, Value: p.curTok.Val}
+		parameters = append(parameters, param)
+	}
+	if !p.expectPeek(lex.RPAREN) {
+		return nil
+	}
+	return parameters
+}
+
 func (p *Parser) parseVarStatement() *ast.VarStatement {
 	stmt := &ast.VarStatement{Token: p.curTok}
 
@@ -261,7 +309,8 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	stmt := &ast.ReturnStatement{Token: p.curTok}
 	p.nextTok()
 
-	for !p.curTokenIs(lex.NEWLINE) {
+	stmt.ReturnValue = p.parseExpression(LOWEST)
+	if p.peekTokenIs(lex.NEWLINE) {
 		p.nextTok()
 	}
 

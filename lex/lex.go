@@ -66,6 +66,8 @@ func (l *Lexer) Lex() (Position, Token, string) {
 			return l.pos, LPAREN, string(r)
 		case ')':
 			return l.pos, RPAREN, string(r)
+		case ',':
+			return l.pos, COMMA, string(r)
 		case '[':
 			return l.pos, LSQRBRAC, string(r)
 		case ']':

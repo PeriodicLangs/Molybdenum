@@ -9,11 +9,11 @@ import (
 )
 
 func main() {
-	// reader := strings.NewReader("edef main() {\n" +
+	// reader := strings.NewReader("efunc main() {\n" +
 	// 	"Print(\"Hello World\")\n" +
 	// 	"}")
 
-	reader, err := os.Open("molybdenum/conditional.mn")
+	reader, err := os.Open("molybdenum/functions.mn")
 	if err != nil {
 		panic(err)
 	}
