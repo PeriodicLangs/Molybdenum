@@ -59,6 +59,7 @@ func New(tokens []lex.LexedTok) *Parser {
 	p.registerInfix(lex.NOTEQUALS, p.parseInfixExpression)
 	p.registerInfix(lex.LT, p.parseInfixExpression)
 	p.registerInfix(lex.GT, p.parseInfixExpression)
+	p.registerInfix(lex.LPAREN, p.parseCallExpression)
 	return p
 }
 
@@ -302,6 +303,9 @@ func (p *Parser) parseVarStatement() *ast.VarStatement {
 	}
 	p.nextTok()
 	stmt.Value = p.parseExpressionStatement()
+	if p.peekTokenIs(lex.NEWLINE) {
+		p.nextTok()
+	}
 	return stmt
 }
 
@@ -319,4 +323,30 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 
 func (p *Parser) parseIdentifier() ast.Expression {
 	return &ast.Identifier{Token: p.curTok, Value: p.curTok.String()}
+}
+
+func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
+	exp := &ast.CallExpression{Token: p.curTok, Function: function}
+	exp.Arguments = p.parseCallArguments()
+	return exp
+}
+
+func (p *Parser) parseCallArguments() []ast.Expression {
+	args := []ast.Expression{}
+	if p.peekTokenIs(lex.RPAREN) {
+		p.nextTok()
+		return args
+	}
+	p.nextTok()
+	args = append(args, p.parseExpression(LOWEST))
+
+	for p.peekTokenIs(lex.COMMA) {
+		p.nextTok()
+		p.nextTok()
+		args = append(args, p.parseExpression(LOWEST))
+	}
+	if !p.expectPeek(lex.RPAREN) {
+		return nil
+	}
+	return args
 }

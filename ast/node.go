@@ -218,3 +218,22 @@ func (p *Parameter) Literal() string {
 func (p *Parameter) String() string {
 	return fmt.Sprintf("%s %s", p.Name.String(), p.Type.String())
 }
+
+type CallExpression struct {
+	Token     lex.LexedTok
+	Function  Expression
+	Arguments []Expression
+}
+
+func (c *CallExpression) expressionNode() {}
+func (c *CallExpression) Literal() string {
+	return fmt.Sprintf("token: %s, function: %s, arguments: %s\n", c.Token.Tok.String(), c.Function.Literal(), c.Arguments)
+}
+func (c *CallExpression) String() string {
+	args := ""
+	for _, arg := range c.Arguments {
+		args += arg.String()
+		args += ", "
+	}
+	return fmt.Sprintf("(%s(%s))", c.Function.String(), args)
+}

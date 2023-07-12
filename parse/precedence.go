@@ -22,6 +22,7 @@ var precedences = map[lex.Token]int{
 	lex.SUB:       SUM,
 	lex.MUL:       PRODUCT,
 	lex.DIV:       PRODUCT,
+	lex.LPAREN:    CALL,
 }
 
 func (p *Parser) peekPrecedence() int {

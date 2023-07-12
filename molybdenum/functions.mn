@@ -3,3 +3,4 @@ func highest(x int, y int) {
 }
 var int x = 5
 var int y = 7
+highest(x,y)
