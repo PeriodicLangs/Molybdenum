@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/westsi/molybdenum/lex"
 )
@@ -34,7 +35,7 @@ func (vs *VarStatement) Literal() string {
 	// return fmt.Sprintf("token: %s, name: %s, type: %s\n", vs.Token.Tok.String(), vs.Name.Literal(), vs.Type.Literal())
 }
 func (vs *VarStatement) String() string {
-	return fmt.Sprintf("(%s, %s, = %s)", vs.Type.String(), vs.Name.String(), vs.Value.String())
+	return fmt.Sprintf("(%s %s = %s)", vs.Type.String(), vs.Name.String(), vs.Value.String())
 }
 
 type Identifier struct {
@@ -170,19 +171,18 @@ type BlockStatement struct {
 
 func (b *BlockStatement) statementNode() {}
 func (b *BlockStatement) Literal() string {
-	stmtString := ""
+	stmtString := []string{}
 	for _, stmt := range b.Statements {
-		stmtString += stmt.Literal()
-		stmtString += ","
+		stmtString = append(stmtString, stmt.Literal())
 	}
-	return fmt.Sprintf("token: %s, statements: %s\n", b.Token.Tok.String(), stmtString)
+	return fmt.Sprintf("token: %s, statements: %s\n", b.Token.Tok.String(), strings.Join(stmtString, ", "))
 }
 func (b *BlockStatement) String() string {
-	s := ""
+	s := []string{}
 	for _, stmt := range b.Statements {
-		s += "," + stmt.String()
+		s = append(s, stmt.String())
 	}
-	return s
+	return strings.Join(s, ", ")
 }
 
 type FunctionDefinition struct {
@@ -197,12 +197,11 @@ func (f *FunctionDefinition) Literal() string {
 	return fmt.Sprintf("token: %s, parameters: %s, body: %s, name: %s\n", f.Token.Tok.String(), f.Parameters, f.Body.Literal(), f.Name.Literal())
 }
 func (f *FunctionDefinition) String() string {
-	ps := ""
+	ps := []string{}
 	for _, p := range f.Parameters {
-		ps += p.String()
-		ps += ", "
+		ps = append(ps, p.String())
 	}
-	return fmt.Sprintf("(func %s (%s) {%s})", f.Name.String(), ps, f.Body.String())
+	return fmt.Sprintf("(func %s (%s) {%s})", f.Name.String(), strings.Join(ps, ", "), f.Body.String())
 }
 
 type Parameter struct {
@@ -230,10 +229,9 @@ func (c *CallExpression) Literal() string {
 	return fmt.Sprintf("token: %s, function: %s, arguments: %s\n", c.Token.Tok.String(), c.Function.Literal(), c.Arguments)
 }
 func (c *CallExpression) String() string {
-	args := ""
+	args := []string{}
 	for _, arg := range c.Arguments {
-		args += arg.String()
-		args += ", "
+		args = append(args, arg.String())
 	}
-	return fmt.Sprintf("(%s(%s))", c.Function.String(), args)
+	return fmt.Sprintf("(%s(%s))", c.Function.String(), strings.Join(args, ", "))
 }
