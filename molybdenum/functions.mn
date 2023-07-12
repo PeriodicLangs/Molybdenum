@@ -1,0 +1,5 @@
+func highest(x int, y int) {
+    if (x>y) { return x } else { return y }
+}
+var int x = 5
+var int y = 7

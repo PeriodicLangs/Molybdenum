@@ -1,4 +1,0 @@
-var bool i = 3 > 5 == false
-if (x>y) {
-    x
-} else {y}

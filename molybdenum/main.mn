@@ -1,7 +1,7 @@
 @import hello
 @import goodbye as g
 
-edef main() {
+efunc main() {
     var string name = "Joe"
     name = "John"
     var int number = 10 * 5 - 1

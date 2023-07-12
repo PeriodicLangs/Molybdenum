@@ -4,7 +4,7 @@
 @import hello
 @import goodbye as g
 
-edef main() {
+efunc main() {
     string name = "Joe"
     name = "John"
     int number = 10 * 0.5 - 1
@@ -25,7 +25,7 @@ IDENT "goodbye"
 KEYWORD "as"
 IDENT "g"
 NEWLINE
-KEYWORD "edef"
+KEYWORD "efunc"
 IDENT "main"
 LBRAC
 RBRAC
