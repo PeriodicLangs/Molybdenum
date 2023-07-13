@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/westsi/molybdenum/lex"
 	"github.com/westsi/molybdenum/parse"
+
+	"github.com/westsi/molybdenum/codegen"
+	"github.com/westsi/molybdenum/lex"
 )
 
 func main() {
@@ -34,4 +36,6 @@ func main() {
 	ast := p.Parse()
 	fmt.Printf("Errors: %s\n", p.Errors())
 	fmt.Println(ast.String())
+
+	codegen.Gen(ast)
 }
