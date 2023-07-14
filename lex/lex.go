@@ -50,7 +50,8 @@ func (l *Lexer) Lex() (Position, Token, string) {
 		case '-':
 			return l.pos, SUB, string(r)
 		case '/':
-			return l.pos, DIV, string(r)
+			sym, val := l.lexSlash(string(r))
+			return l.pos, sym, val
 		case '%':
 			return l.pos, MOD, string(r)
 		case '=':
@@ -242,5 +243,25 @@ func (l *Lexer) lexBang(r rune) (Token, string) {
 		return NOTEQUALS, s
 	default:
 		return NOT, s
+	}
+}
+
+func (l *Lexer) lexSlash(r string) (Token, string) {
+	lit := r
+	for {
+		r, _, _ := l.reader.ReadRune()
+		if r == '/' {
+			l.pos.col++
+			// the rest of the line is a comment and should be ignored
+			r, _, _ = l.reader.ReadRune()
+			for r != '\n' {
+				r, _, _ = l.reader.ReadRune()
+			}
+			l.resetPosition()
+			return NEWLINE, "\n"
+		} else {
+			l.backup()
+			return DIV, lit
+		}
 	}
 }
