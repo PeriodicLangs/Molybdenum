@@ -161,3 +161,10 @@ var validEntryPointNames = []string{
 	// "init", ADD LATER!!!
 	// "initOnce", ADD LATER!!!
 }
+
+var datatypes = map[Token]string{
+	INTLITERAL:    "int",
+	STRINGLITERAL: "string",
+	TRUE:          "bool",
+	FALSE:         "bool",
+}

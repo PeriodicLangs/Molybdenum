@@ -1,3 +1,4 @@
 efunc main() {
-    Print()
+    var int i = 100 // Test Comment
+    Print(i) // Prints 100 to stdout
 }

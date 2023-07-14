@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/westsi/molybdenum/parse"
+	"github.com/westsi/molybdenum/verify"
 
-	"github.com/westsi/molybdenum/codegen"
 	"github.com/westsi/molybdenum/lex"
 )
 
@@ -15,7 +15,7 @@ func main() {
 	// 	"Print(\"Hello World\")\n" +
 	// 	"}")
 
-	reader, err := os.Open("molybdenum/functions.mn")
+	reader, err := os.Open("molybdenum/verify_system_test.mn")
 	if err != nil {
 		panic(err)
 	}
@@ -37,5 +37,7 @@ func main() {
 	fmt.Printf("Errors: %s\n", p.Errors())
 	fmt.Println(ast.String())
 
-	codegen.Gen(ast)
+	errs := verify.Verify(*ast)
+	fmt.Printf("Errors: %s\n", errs)
+	// codegen.Gen(ast)
 }

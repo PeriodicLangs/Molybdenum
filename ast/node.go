@@ -15,6 +15,7 @@ type Node interface {
 type Statement interface {
 	Node
 	statementNode()
+	NType() string
 }
 
 type Expression interface {
@@ -30,6 +31,7 @@ type VarStatement struct {
 }
 
 func (vs *VarStatement) statementNode() {}
+func (vs *VarStatement) NType() string  { return "VarStatement" }
 func (vs *VarStatement) Literal() string {
 	return fmt.Sprintf("token: %s, name: %s, value: %s, type: %s\n", vs.Token.Tok.String(), vs.Name.Literal(), vs.Value.Literal(), vs.Type.Literal())
 	// return fmt.Sprintf("token: %s, name: %s, type: %s\n", vs.Token.Tok.String(), vs.Name.Literal(), vs.Type.Literal())
@@ -56,7 +58,7 @@ type Type struct {
 	Value string
 }
 
-func (t *Type) statementNode() {}
+func (t *Type) expressionNode() {}
 func (t *Type) Literal() string {
 	return fmt.Sprintf("{%s, %s}", t.Token.Tok.String(), t.Value)
 }
@@ -70,6 +72,7 @@ type ReturnStatement struct {
 }
 
 func (ret *ReturnStatement) statementNode() {}
+func (ret *ReturnStatement) NType() string  { return "ReturnStatement" }
 func (ret *ReturnStatement) Literal() string {
 	return fmt.Sprintf("token: %s, value: %s\n", ret.Token.Tok.String(), ret.ReturnValue.Literal())
 }
@@ -84,6 +87,7 @@ type ExpressionStatement struct {
 
 func (exp *ExpressionStatement) expressionNode() {}
 func (exp *ExpressionStatement) statementNode()  {}
+func (exp *ExpressionStatement) NType() string   { return "ExpressionStatement" }
 func (exp *ExpressionStatement) Literal() string {
 	return fmt.Sprintf("token: %s, value: %s\n", exp.Token.Tok.String(), exp.Expression.Literal())
 }
@@ -170,6 +174,7 @@ type BlockStatement struct {
 }
 
 func (b *BlockStatement) statementNode() {}
+func (b *BlockStatement) NType() string  { return "BlockStatement" }
 func (b *BlockStatement) Literal() string {
 	stmtString := []string{}
 	for _, stmt := range b.Statements {
@@ -193,6 +198,8 @@ type FunctionDefinition struct {
 }
 
 func (f *FunctionDefinition) expressionNode() {}
+func (f *FunctionDefinition) statementNode()  {}
+func (f *FunctionDefinition) NType() string   { return "FunctionDefinition" }
 func (f *FunctionDefinition) Literal() string {
 	return fmt.Sprintf("token: %s, parameters: %s, body: %s, name: %s\n", f.Token.Tok.String(), f.Parameters, f.Body.Literal(), f.Name.Literal())
 }
@@ -234,4 +241,22 @@ func (c *CallExpression) String() string {
 		args = append(args, arg.String())
 	}
 	return fmt.Sprintf("(%s(%s))", c.Function.String(), strings.Join(args, ", "))
+}
+
+type EntrypointFunctionDefinition struct {
+	Token lex.LexedTok
+	// Entrypoint functions have no parameters
+	// In addition, they should never be called by the user - calls for them are handled by the compiler
+	Body *BlockStatement
+	Name *Identifier
+}
+
+func (e *EntrypointFunctionDefinition) expressionNode() {}
+func (e *EntrypointFunctionDefinition) statementNode()  {}
+func (e *EntrypointFunctionDefinition) NType() string   { return "EntrypointFunctionDefinition" }
+func (e *EntrypointFunctionDefinition) Literal() string {
+	return fmt.Sprintf("token: %s, body: %s, name: %s\n", e.Token.Tok.String(), e.Body.Literal(), e.Name.Literal())
+}
+func (e *EntrypointFunctionDefinition) String() string {
+	return fmt.Sprintf("(entrypoint %s {%s})", e.Name.String(), e.Body.String())
 }
