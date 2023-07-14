@@ -50,6 +50,7 @@ func New(tokens []lex.LexedTok) *Parser {
 	p.registerPrefix(lex.FALSE, p.parseBoolean)
 	p.registerPrefix(lex.IF, p.parseIfExpression)
 	p.registerPrefix(lex.FUNC, p.parseFunctionDefinition)
+	p.registerPrefix(lex.EFUNC, p.parseEntrypointFunctionDefinition)
 	p.infixParseFuncs = make(map[lex.Token]infixParseFunc)
 	p.registerInfix(lex.ADD, p.parseInfixExpression)
 	p.registerInfix(lex.SUB, p.parseInfixExpression)
@@ -238,6 +239,24 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	return block
 }
 
+func (p *Parser) parseEntrypointFunctionDefinition() ast.Expression {
+	efd := &ast.EntrypointFunctionDefinition{Token: p.curTok}
+	p.nextTok()
+	efd.Name = &ast.Identifier{Token: p.curTok, Value: p.curTok.Val}
+	if !p.expectPeek(lex.LPAREN) {
+		return nil
+	}
+	if !p.expectPeek(lex.RPAREN) {
+		return nil
+	}
+	// parameters do not get parsed because entrypoint functions should not have parameters
+	if !p.expectPeek(lex.BLOCKSTART) {
+		return nil
+	}
+	efd.Body = p.parseBlockStatement()
+	return efd
+}
+
 func (p *Parser) parseFunctionDefinition() ast.Expression {
 	fd := &ast.FunctionDefinition{Token: p.curTok}
 	p.nextTok()
@@ -260,23 +279,33 @@ func (p *Parser) parseFunctionParameters() []*ast.Parameter {
 		return parameters
 	}
 	p.nextTok()
-	param := &ast.Parameter{Token: p.curTok, Name: &ast.Identifier{Token: p.curTok, Value: p.curTok.Val}}
-	p.nextTok()
+	param := &ast.Parameter{}
 	if !p.curTokenIs(lex.TYPEANNOT) {
 		p.e(lex.TYPEANNOT, p.curTok.Tok)
 	}
 	param.Type = &ast.Type{Token: p.curTok, Value: p.curTok.Val}
+	p.nextTok()
+	if !p.curTokenIs(lex.IDENT) {
+		p.e(lex.IDENT, p.curTok.Tok)
+	}
+	param.Token = p.curTok
+	param.Name = &ast.Identifier{Token: p.curTok, Value: p.curTok.Val}
 	parameters = append(parameters, param)
 
 	for p.peekTokenIs(lex.COMMA) {
 		p.nextTok()
 		p.nextTok()
-		param := &ast.Parameter{Token: p.curTok, Name: &ast.Identifier{Token: p.curTok, Value: p.curTok.Val}}
-		p.nextTok()
+		param := &ast.Parameter{}
 		if !p.curTokenIs(lex.TYPEANNOT) {
 			p.e(lex.TYPEANNOT, p.curTok.Tok)
 		}
 		param.Type = &ast.Type{Token: p.curTok, Value: p.curTok.Val}
+		p.nextTok()
+		if !p.curTokenIs(lex.IDENT) {
+			p.e(lex.IDENT, p.curTok.Tok)
+		}
+		param.Token = p.curTok
+		param.Name = &ast.Identifier{Token: p.curTok, Value: p.curTok.Val}
 		parameters = append(parameters, param)
 	}
 	if !p.expectPeek(lex.RPAREN) {
