@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/westsi/molybdenum/ast"
+	"github.com/westsi/molybdenum/lex"
 )
 
 // Verifies that all referenced variables/functions are defined
@@ -75,3 +76,18 @@ func VerifyEntrypointFunctionDefinition(f *ast.EntrypointFunctionDefinition) []e
 }
 func VerifyExpressionStatement(f *ast.ExpressionStatement) []error { e := []error{}; return e }
 func VerifyReturnStatement(f *ast.ReturnStatement) []error         { e := []error{}; return e }
+
+func getLiteralType(lit lex.Token) string {
+	switch lit {
+	case lex.INTLITERAL:
+		return "int"
+	case lex.STRINGLITERAL:
+		return "string"
+	case lex.TRUE:
+		return "bool"
+	case lex.FALSE:
+		return "bool"
+	default:
+		return "unknown"
+	}
+}

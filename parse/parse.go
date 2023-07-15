@@ -115,7 +115,6 @@ func (p *Parser) parseStatement() ast.Statement {
 	case lex.VAR:
 		return p.parseVarStatement()
 	case lex.NEWLINE:
-		fmt.Println("newline")
 		return nil
 	default:
 		return p.parseExpressionStatement()
