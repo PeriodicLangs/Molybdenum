@@ -324,7 +324,7 @@ func (p *Parser) parseVarStatement() *ast.VarStatement {
 	if !p.expectPeek(lex.IDENT) {
 		p.e(lex.IDENT, p.curTok.Tok)
 	}
-	stmt.Name = &ast.Identifier{Token: p.curTok, Value: p.curTok.String()}
+	stmt.Name = &ast.Identifier{Token: p.curTok, Value: p.curTok.Val}
 
 	if !p.expectPeek(lex.ASSIGN) {
 		p.e(lex.ASSIGN, p.curTok.Tok)
@@ -350,7 +350,7 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
-	return &ast.Identifier{Token: p.curTok, Value: p.curTok.String()}
+	return &ast.Identifier{Token: p.curTok, Value: p.curTok.Val}
 }
 
 func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {

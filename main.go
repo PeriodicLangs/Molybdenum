@@ -15,7 +15,8 @@ func main() {
 	// 	"Print(\"Hello World\")\n" +
 	// 	"}")
 
-	reader, err := os.Open("molybdenum/verify_system_test.mn")
+	// reader, err := os.Open("molybdenum/verify_system_test.mn")
+	reader, err := os.Open("molybdenum/basic.mn")
 	if err != nil {
 		panic(err)
 	}

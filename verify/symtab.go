@@ -18,10 +18,10 @@ type SymTabVariable struct {
 	Type string
 }
 
-func (t *SymTabVariable) Literal() string {
+func (t SymTabVariable) Literal() string {
 	return t.Type
 }
-func (t *SymTabVariable) String() string {
+func (t SymTabVariable) String() string {
 	return t.Type
 }
 
@@ -30,9 +30,9 @@ type SymTabFunction struct {
 	ParameterTypes []string
 }
 
-func (t *SymTabFunction) Literal() string {
+func (t SymTabFunction) Literal() string {
 	return fmt.Sprintf("{%s, %s}", t.ReturnType, strings.Join(t.ParameterTypes, ", "))
 }
-func (t *SymTabFunction) String() string {
+func (t SymTabFunction) String() string {
 	return fmt.Sprintf("{%s, %s}", t.ReturnType, strings.Join(t.ParameterTypes, ", "))
 }

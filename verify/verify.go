@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/westsi/molybdenum/ast"
-	"github.com/westsi/molybdenum/lex"
 )
 
 // Verifies that all referenced variables/functions are defined
@@ -32,21 +31,22 @@ func Verify(prog ast.Program) []error {
 	fcallchecks = []string{}
 
 	for _, stmt := range prog.Statements {
-		switch stmt.NType() {
-		case "VarStatement":
-			errors = append(errors, VerifyVarStatement(stmt.(*ast.VarStatement))...)
-		case "FunctionDefinition":
-			errors = append(errors, VerifyFunctionDefinition(stmt.(*ast.FunctionDefinition))...)
-		case "BlockStatement":
-			errors = append(errors, VerifyBlockStatement(stmt.(*ast.BlockStatement))...)
-		case "EntrypointFunctionDefinition":
-			errors = append(errors, VerifyEntrypointFunctionDefinition(stmt.(*ast.EntrypointFunctionDefinition))...)
-		case "ExpressionStatement":
-			errors = append(errors, VerifyExpressionStatement(stmt.(*ast.ExpressionStatement))...)
-		case "ReturnStatement":
-			errors = append(errors, VerifyReturnStatement(stmt.(*ast.ReturnStatement))...)
+		fmt.Println("looping")
+		switch st := stmt.(type) {
+		case *ast.VarStatement:
+			errors = append(errors, VerifyVarStatement(st)...)
+		case *ast.FunctionDefinition:
+			errors = append(errors, VerifyFunctionDefinition(st)...)
+		case *ast.BlockStatement:
+			errors = append(errors, VerifyBlockStatement(st)...)
+		case *ast.EntrypointFunctionDefinition:
+			errors = append(errors, VerifyEntrypointFunctionDefinition(st)...)
+		case *ast.ExpressionStatement:
+			errors = append(errors, VerifyExpressionStatement(st)...)
+		case *ast.ReturnStatement:
+			errors = append(errors, VerifyReturnStatement(st)...)
 		default:
-			errors = append(errors, fmt.Errorf("unknown statement type: %s", stmt.NType()))
+			errors = append(errors, fmt.Errorf("unknown statement type: %T", stmt))
 		}
 	}
 
@@ -57,13 +57,19 @@ func VerifyVarStatement(vs *ast.VarStatement) []error {
 	e := []error{}
 	name := vs.Name.Value
 	entry := symtab.Entries[name]
+	fmt.Println(entry)
+	fmt.Println(symtab)
 	// check that this is the first definition of this identifier
 	if entry != nil {
 		e = append(e, fmt.Errorf("already defined %s", name))
 	} else {
-		symtab.Entries[name] = &SymTabVariable{Type: vs.Type.Value}
+		symtab.Entries[name] = SymTabVariable{Type: vs.Type.Value}
 	}
 	// check that the value assigned to it is of the correct type
+	if getLiteralType(vs.Value.(*ast.ExpressionStatement).Expression) != vs.Type.Value {
+		// this cast to *ast.ExpressionStatement will never fail because the current parsing setup means that vs.Value is always a *ast.ExpressionStatement
+		e = append(e, fmt.Errorf("type mismatch: expected %s, got %s", vs.Type.Value, getLiteralType(vs.Value.(*ast.ExpressionStatement).Expression)))
+	}
 
 	return e
 }
@@ -77,15 +83,13 @@ func VerifyEntrypointFunctionDefinition(f *ast.EntrypointFunctionDefinition) []e
 func VerifyExpressionStatement(f *ast.ExpressionStatement) []error { e := []error{}; return e }
 func VerifyReturnStatement(f *ast.ReturnStatement) []error         { e := []error{}; return e }
 
-func getLiteralType(lit lex.Token) string {
-	switch lit {
-	case lex.INTLITERAL:
+func getLiteralType(lit ast.Expression) string {
+	switch lit.(type) {
+	case *ast.IntegerLiteral:
 		return "int"
-	case lex.STRINGLITERAL:
-		return "string"
-	case lex.TRUE:
-		return "bool"
-	case lex.FALSE:
+	// case *ast.StringLiteral:
+	// 	return "string"
+	case *ast.Boolean:
 		return "bool"
 	default:
 		return "unknown"

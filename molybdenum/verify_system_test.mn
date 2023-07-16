@@ -4,20 +4,20 @@ var int i = 10 // redefining i with different datatype
 var int j = 1 
 // j = true // assigning incorrect datatype - also does not work because assigning variables does not work
 
-test(k) // variables are defined at use and functions are defined even after use
+// test(k) // variables are defined at use and functions are defined even after use
 
-func test(int a) {
-    if (a > 10) {
-        return a
-    } else {
-        return true // correct type is returned from all branches
-        // this test is somewhat unrunnable because returning values
-        // is not yet supported
-    }
-}
+// func test(int a) {
+//     if (a > 10) {
+//         return a
+//     } else {
+//         return true // correct type is returned from all branches
+//         // this test is somewhat unrunnable because returning values
+//         // is not yet supported
+//     }
+// }
 
-var bool x = true
-var int y = 8
-test(x) // type of arguments
-test(y, y) // number of arguments
-test(x, y) // type and number of arguments
+// var bool x = true
+// var int y = 8
+// test(x) // type of arguments
+// test(y, y) // number of arguments
+// test(x, y) // type and number of arguments
