@@ -36,3 +36,9 @@ func (t SymTabFunction) Literal() string {
 func (t SymTabFunction) String() string {
 	return fmt.Sprintf("{%s, %s}", t.ReturnType, strings.Join(t.ParameterTypes, ", "))
 }
+
+type SymTabEntrypointFunction struct{}
+
+func (t SymTabEntrypointFunction) Literal() string { return "EPF" }
+
+func (t SymTabEntrypointFunction) String() string { return "EPF" }

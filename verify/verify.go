@@ -32,28 +32,32 @@ func Verify(prog ast.Program) []error {
 
 	for _, stmt := range prog.Statements {
 		fmt.Println("looping")
-		switch st := stmt.(type) {
-		case *ast.VarStatement:
-			errors = append(errors, VerifyVarStatement(st)...)
-		case *ast.FunctionDefinition:
-			errors = append(errors, VerifyFunctionDefinition(st)...)
-		case *ast.BlockStatement:
-			errors = append(errors, VerifyBlockStatement(st)...)
-		case *ast.EntrypointFunctionDefinition:
-			errors = append(errors, VerifyEntrypointFunctionDefinition(st)...)
-		case *ast.ExpressionStatement:
-			errors = append(errors, VerifyExpressionStatement(st)...)
-		case *ast.ReturnStatement:
-			errors = append(errors, VerifyReturnStatement(st)...)
-		default:
-			errors = append(errors, fmt.Errorf("unknown statement type: %T", stmt))
-		}
+		verifyStatement(stmt)
 	}
 
 	return errors
 }
 
-func VerifyVarStatement(vs *ast.VarStatement) []error {
+func verifyStatement(stmt ast.Statement) {
+	switch st := stmt.(type) {
+	case *ast.VarStatement:
+		errors = append(errors, verifyVarStatement(st)...)
+	case *ast.FunctionDefinition:
+		errors = append(errors, verifyFunctionDefinition(st)...)
+	case *ast.BlockStatement:
+		errors = append(errors, verifyBlockStatement(st)...)
+	case *ast.EntrypointFunctionDefinition:
+		errors = append(errors, verifyEntrypointFunctionDefinition(st)...)
+	case *ast.ExpressionStatement:
+		errors = append(errors, verifyExpressionStatement(st)...)
+	case *ast.ReturnStatement:
+		errors = append(errors, verifyReturnStatement(st)...)
+	default:
+		errors = append(errors, fmt.Errorf("unknown statement type: %T", stmt))
+	}
+}
+
+func verifyVarStatement(vs *ast.VarStatement) []error {
 	e := []error{}
 	name := vs.Name.Value
 	entry := symtab.Entries[name]
@@ -74,14 +78,25 @@ func VerifyVarStatement(vs *ast.VarStatement) []error {
 	return e
 }
 
-func VerifyFunctionDefinition(f *ast.FunctionDefinition) []error { e := []error{}; return e }
-func VerifyBlockStatement(f *ast.BlockStatement) []error         { e := []error{}; return e }
-func VerifyEntrypointFunctionDefinition(f *ast.EntrypointFunctionDefinition) []error {
+func verifyFunctionDefinition(f *ast.FunctionDefinition) []error { e := []error{}; return e }
+func verifyBlockStatement(f *ast.BlockStatement) []error         { e := []error{}; return e }
+func verifyEntrypointFunctionDefinition(f *ast.EntrypointFunctionDefinition) []error {
 	e := []error{}
+	// check that this is the first definition of this identifier
+	name := f.Name.Value
+	if !contains(validEntryPointNames, name) {
+		e = append(e, fmt.Errorf("unknown entrypoint name: %s", name))
+	}
+	entry := symtab.Entries[name]
+	if entry != nil {
+		e = append(e, fmt.Errorf("already defined %s", name))
+	} else {
+		symtab.Entries[name] = SymTabEntrypointFunction{}
+	}
 	return e
 }
-func VerifyExpressionStatement(f *ast.ExpressionStatement) []error { e := []error{}; return e }
-func VerifyReturnStatement(f *ast.ReturnStatement) []error         { e := []error{}; return e }
+func verifyExpressionStatement(f *ast.ExpressionStatement) []error { e := []error{}; return e }
+func verifyReturnStatement(f *ast.ReturnStatement) []error         { e := []error{}; return e }
 
 func getLiteralType(lit ast.Expression) string {
 	switch lit.(type) {
@@ -94,4 +109,20 @@ func getLiteralType(lit ast.Expression) string {
 	default:
 		return "unknown"
 	}
+}
+
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
+}
+
+var validEntryPointNames = []string{
+	"main",
+	// "init", ADD LATER!!!
+	// "initOnce", ADD LATER!!!
 }

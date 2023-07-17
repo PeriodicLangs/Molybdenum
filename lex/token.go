@@ -156,12 +156,6 @@ func (lt *LexedTok) String() string {
 	return fmt.Sprint(lt.Pos) + " " + lt.Tok.String() + " " + lt.Val
 }
 
-var validEntryPointNames = []string{
-	"main",
-	// "init", ADD LATER!!!
-	// "initOnce", ADD LATER!!!
-}
-
 var datatypes = map[Token]string{
 	INTLITERAL:    "int",
 	STRINGLITERAL: "string",
