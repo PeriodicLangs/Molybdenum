@@ -30,8 +30,10 @@ func Verify(prog ast.Program) []error {
 	symtab = SymTab{make(map[string]SymTabEntry)}
 	fcallchecks = []string{}
 
+	fmt.Println(len(prog.Statements))
 	for _, stmt := range prog.Statements {
 		fmt.Println("looping")
+		fmt.Println(symtab)
 		verifyStatement(stmt)
 	}
 
@@ -57,6 +59,7 @@ func verifyStatement(stmt ast.Statement) {
 	}
 }
 
+// TODO - this and the symtab in general do not work for scoped identifiers
 func verifyVarStatement(vs *ast.VarStatement) []error {
 	e := []error{}
 	name := vs.Name.Value

@@ -1,4 +1,7 @@
+func main() {
+    Print(100) // Prints 100 to stdout
+}
+
 efunc main() {
-    var int i = 100 // Test Comment
-    Print(i) // Prints 100 to stdout
+    Print(10)
 }
