@@ -115,7 +115,8 @@ func (p *Parser) parseStatement() ast.Statement {
 	case lex.RETURN:
 		return p.parseReturnStatement()
 	case lex.VAR:
-		return p.parseVarStatement()
+		stmt := p.parseVarStatement()
+		return stmt
 	case lex.NEWLINE:
 		return nil
 	default:
@@ -223,8 +224,6 @@ func (p *Parser) parseIfExpression() ast.Expression {
 
 	return exp
 }
-
-// TODO - does not terminate properly but does with no block contents
 func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	defer untrace(trace("parseBlockStatement"))
 	block := &ast.BlockStatement{Token: p.curTok}
@@ -240,11 +239,10 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 			block.Statements = append(block.Statements, stmt)
 		}
 		p.nextTok()
-		if p.peekTokenIs(lex.NEWLINE) {
+		if p.curTokenIs(lex.NEWLINE) { // blockend was consumed here because it was p.peekTokenIs which ignored the advance on line 243
 			p.nextTok()
 			p.nextTok()
 		}
-		fmt.Println(p.curTok)
 		canCont = !p.curTokenIs(lex.BLOCKEND) && !p.curTokenIs(lex.EOF)
 	}
 	return block
