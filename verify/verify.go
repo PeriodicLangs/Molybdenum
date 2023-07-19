@@ -44,16 +44,14 @@ func verifyStatement(stmt ast.Statement) {
 	switch st := stmt.(type) {
 	case *ast.VarStatement:
 		errors = append(errors, verifyVarStatement(st)...)
-	case *ast.FunctionDefinition:
-		errors = append(errors, verifyFunctionDefinition(st)...)
-	case *ast.BlockStatement:
-		errors = append(errors, verifyBlockStatement(st)...)
-	case *ast.EntrypointFunctionDefinition:
-		errors = append(errors, verifyEntrypointFunctionDefinition(st)...)
 	case *ast.ExpressionStatement:
 		errors = append(errors, verifyExpressionStatement(st)...)
 	case *ast.ReturnStatement:
 		errors = append(errors, verifyReturnStatement(st)...)
+	case *ast.FunctionDefinition:
+		errors = append(errors, verifyFunctionDefinition(st)...)
+	case *ast.EntrypointFunctionDefinition:
+		errors = append(errors, verifyEntrypointFunctionDefinition(st)...)
 	default:
 		errors = append(errors, fmt.Errorf("unknown statement type: %T", stmt))
 	}
@@ -81,8 +79,27 @@ func verifyVarStatement(vs *ast.VarStatement) []error {
 	return e
 }
 
-func verifyFunctionDefinition(f *ast.FunctionDefinition) []error { e := []error{}; return e }
-func verifyBlockStatement(f *ast.BlockStatement) []error         { e := []error{}; return e }
+func verifyFunctionDefinition(f *ast.FunctionDefinition) []error {
+	e := []error{}
+	// check that this is the first definition of this identifier
+	name := f.Name.Value
+	if contains(validEntryPointNames, name) {
+		e = append(e, fmt.Errorf("entrypoint function %s defined as function", name))
+	}
+	entry := symtab.Entries[name]
+	if entry != nil {
+		e = append(e, fmt.Errorf("already defined %s", name))
+	} else {
+		ptypes := make([]string, len(f.Parameters))
+		for i, p := range f.Parameters {
+			ptypes[i] = p.Type.Value
+		}
+		// TODO - Add return type to ast.FunctionDefinition
+		symtab.Entries[name] = SymTabFunction{ReturnType: "", ParameterTypes: ptypes}
+	}
+	return e
+}
+func verifyBlockStatement(f *ast.BlockStatement) []error { e := []error{}; return e }
 func verifyEntrypointFunctionDefinition(f *ast.EntrypointFunctionDefinition) []error {
 	e := []error{}
 	// check that this is the first definition of this identifier
@@ -98,8 +115,17 @@ func verifyEntrypointFunctionDefinition(f *ast.EntrypointFunctionDefinition) []e
 	}
 	return e
 }
-func verifyExpressionStatement(f *ast.ExpressionStatement) []error { e := []error{}; return e }
-func verifyReturnStatement(f *ast.ReturnStatement) []error         { e := []error{}; return e }
+func verifyExpressionStatement(f *ast.ExpressionStatement) []error {
+	e := []error{}
+	switch _st := f.Expression.(type) {
+	case *ast.ExpressionStatement:
+		e = append(e, verifyExpressionStatement(_st)...)
+	default:
+		// do nothing
+	}
+	return e
+}
+func verifyReturnStatement(f *ast.ReturnStatement) []error { e := []error{}; return e }
 
 func getLiteralType(lit ast.Expression) string {
 	switch lit.(type) {

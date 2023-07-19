@@ -49,8 +49,8 @@ func New(tokens []lex.LexedTok) *Parser {
 	p.registerPrefix(lex.TRUE, p.parseBoolean)
 	p.registerPrefix(lex.FALSE, p.parseBoolean)
 	p.registerPrefix(lex.IF, p.parseIfExpression)
-	p.registerPrefix(lex.FUNC, p.parseFunctionDefinition)
-	p.registerPrefix(lex.EFUNC, p.parseEntrypointFunctionDefinition)
+	// p.registerPrefix(lex.FUNC, p.parseFunctionDefinition)
+	// p.registerPrefix(lex.EFUNC, p.parseEntrypointFunctionDefinition)
 	p.infixParseFuncs = make(map[lex.Token]infixParseFunc)
 	p.registerInfix(lex.ADD, p.parseInfixExpression)
 	p.registerInfix(lex.SUB, p.parseInfixExpression)
@@ -75,7 +75,7 @@ func (p *Parser) Errors() []string {
 }
 
 func (p *Parser) Parse() *ast.Program {
-	defer untrace(trace("parse"))
+	// defer untrace(trace("parse"))
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
 
@@ -110,7 +110,7 @@ func (p *Parser) expectPeek(t lex.Token) bool {
 }
 
 func (p *Parser) parseStatement() ast.Statement {
-	defer untrace(trace("parseStatement"))
+	// defer untrace(trace("parseStatement"))
 	switch p.curTok.Tok {
 	case lex.RETURN:
 		return p.parseReturnStatement()
@@ -119,13 +119,17 @@ func (p *Parser) parseStatement() ast.Statement {
 		return stmt
 	case lex.NEWLINE:
 		return nil
+	case lex.FUNC:
+		return p.parseFunctionDefinition()
+	case lex.EFUNC:
+		return p.parseEntrypointFunctionDefinition()
 	default:
 		return p.parseExpressionStatement()
 	}
 }
 
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
-	defer untrace(trace("parseExpressionStatement"))
+	// defer untrace(trace("parseExpressionStatement"))
 	stmt := &ast.ExpressionStatement{Token: p.curTok}
 	stmt.Expression = p.parseExpression(LOWEST)
 	if p.peekTokenIs(lex.NEWLINE) {
@@ -135,7 +139,7 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 }
 
 func (p *Parser) parseExpression(prec int) ast.Expression {
-	defer untrace(trace("parseExpression"))
+	// defer untrace(trace("parseExpression"))
 	prefix := p.prefixParseFuncs[p.curTok.Tok]
 	if prefix == nil {
 		p.noPrefixParseFuncError(p.curTok.Tok)
@@ -156,7 +160,7 @@ func (p *Parser) parseExpression(prec int) ast.Expression {
 }
 
 func (p *Parser) parseIntegerLiteral() ast.Expression {
-	defer untrace(trace("parseIntegerLiteral"))
+	// defer untrace(trace("parseIntegerLiteral"))
 	lit := &ast.IntegerLiteral{Token: p.curTok}
 	val, err := strconv.ParseInt(p.curTok.Val, 0, 64)
 	if err != nil {
@@ -167,7 +171,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 }
 
 func (p *Parser) parsePrefixExpression() ast.Expression {
-	defer untrace(trace("parsePrefixExpression"))
+	// defer untrace(trace("parsePrefixExpression"))
 	exp := &ast.PrefixExpression{
 		Token:    p.curTok,
 		Operator: p.curTok.Val,
@@ -178,7 +182,7 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 }
 
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
-	defer untrace(trace("parseInfixExpression"))
+	// defer untrace(trace("parseInfixExpression"))
 	exp := &ast.InfixExpression{
 		Token:    p.curTok,
 		Operator: p.curTok.Val,
@@ -191,12 +195,12 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parseBoolean() ast.Expression {
-	defer untrace(trace("parseBoolean"))
+	// defer untrace(trace("parseBoolean"))
 	return &ast.Boolean{Token: p.curTok, Value: p.curTokenIs(lex.TRUE)}
 }
 
 func (p *Parser) parseIfExpression() ast.Expression {
-	defer untrace(trace("parseIfExpression"))
+	// defer untrace(trace("parseIfExpression"))
 	exp := &ast.IfExpression{Token: p.curTok}
 
 	if !p.expectPeek(lex.LPAREN) {
@@ -225,7 +229,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	return exp
 }
 func (p *Parser) parseBlockStatement() *ast.BlockStatement {
-	defer untrace(trace("parseBlockStatement"))
+	// defer untrace(trace("parseBlockStatement"))
 	block := &ast.BlockStatement{Token: p.curTok}
 	block.Statements = []ast.Statement{}
 	p.nextTok()
@@ -248,8 +252,8 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	return block
 }
 
-func (p *Parser) parseEntrypointFunctionDefinition() ast.Expression {
-	defer untrace(trace("parseEntrypointFunctionDefinition"))
+func (p *Parser) parseEntrypointFunctionDefinition() *ast.EntrypointFunctionDefinition {
+	// defer untrace(trace("parseEntrypointFunctionDefinition"))
 	efd := &ast.EntrypointFunctionDefinition{Token: p.curTok}
 	p.nextTok()
 	efd.Name = &ast.Identifier{Token: p.curTok, Value: p.curTok.Val}
@@ -267,8 +271,8 @@ func (p *Parser) parseEntrypointFunctionDefinition() ast.Expression {
 	return efd
 }
 
-func (p *Parser) parseFunctionDefinition() ast.Expression {
-	defer untrace(trace("parseFunctionDefinition"))
+func (p *Parser) parseFunctionDefinition() *ast.FunctionDefinition {
+	// defer untrace(trace("parseFunctionDefinition"))
 	fd := &ast.FunctionDefinition{Token: p.curTok}
 	p.nextTok()
 	fd.Name = &ast.Identifier{Token: p.curTok, Value: p.curTok.Val}
@@ -284,7 +288,7 @@ func (p *Parser) parseFunctionDefinition() ast.Expression {
 }
 
 func (p *Parser) parseFunctionParameters() []*ast.Parameter {
-	defer untrace(trace("parseFunctionParameters"))
+	// defer untrace(trace("parseFunctionParameters"))
 	parameters := []*ast.Parameter{}
 	if p.peekTokenIs(lex.RPAREN) {
 		p.nextTok()
@@ -327,7 +331,7 @@ func (p *Parser) parseFunctionParameters() []*ast.Parameter {
 }
 
 func (p *Parser) parseVarStatement() *ast.VarStatement {
-	defer untrace(trace("parseVarStatement"))
+	// defer untrace(trace("parseVarStatement"))
 	stmt := &ast.VarStatement{Token: p.curTok}
 
 	if !p.expectPeek(lex.TYPEANNOT) {
@@ -352,7 +356,7 @@ func (p *Parser) parseVarStatement() *ast.VarStatement {
 }
 
 func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
-	defer untrace(trace("parseReturnStatement"))
+	// defer untrace(trace("parseReturnStatement"))
 	stmt := &ast.ReturnStatement{Token: p.curTok}
 	p.nextTok()
 
@@ -365,19 +369,19 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
-	defer untrace(trace("parseIdentifier"))
+	// defer untrace(trace("parseIdentifier"))
 	return &ast.Identifier{Token: p.curTok, Value: p.curTok.Val}
 }
 
 func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
-	defer untrace(trace("parseCallExpression"))
+	// defer untrace(trace("parseCallExpression"))
 	exp := &ast.CallExpression{Token: p.curTok, Function: function}
 	exp.Arguments = p.parseCallArguments()
 	return exp
 }
 
 func (p *Parser) parseCallArguments() []ast.Expression {
-	defer untrace(trace("parseCallArguments"))
+	// defer untrace(trace("parseCallArguments"))
 	args := []ast.Expression{}
 	if p.peekTokenIs(lex.RPAREN) {
 		p.nextTok()
