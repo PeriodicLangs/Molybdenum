@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/westsi/molybdenum/parse"
-	"github.com/westsi/molybdenum/verify"
-
 	"github.com/westsi/molybdenum/lex"
+	"github.com/westsi/molybdenum/parse"
 )
 
 func main() {
@@ -37,8 +35,4 @@ func main() {
 	ast := p.Parse()
 	fmt.Printf("Errors: %s\n", p.Errors())
 	fmt.Println(ast.String())
-
-	errs := verify.Verify(*ast)
-	fmt.Printf("Errors: %s\n", errs)
-	// codegen.Gen(ast)
 }
